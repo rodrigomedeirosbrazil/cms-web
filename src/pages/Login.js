@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useMutation } from '@apollo/react-hooks';
 import gql from 'graphql-tag';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faSpinner } from '@fortawesome/free-solid-svg-icons'
 
 import './Login.css';
 import logo from '../assets/medeirostec_logo.png'
@@ -14,13 +16,19 @@ const LOGIN = gql`
 export default function Login({ history }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [login] = useMutation(LOGIN);
+    const [login, { loading: loginLoading, error: loginError }] = useMutation(LOGIN, 
+        {
+            onCompleted: onLoginCompleted,
+        }
+    );
     
+    function onLoginCompleted (data) {
+        console.log(data)
+    }
 
     async function handleSubmit(e) {
         e.preventDefault();
-        const res = await login({ variables: { email, password } });
-        console.log(res);
+        login({ variables: { email, password } });
         //history.push('/main');
     }
 
@@ -39,7 +47,9 @@ export default function Login({ history }) {
                     value={password} 
                     onChange={e => setPassword(e.target.value)}
                 />
-                <button type="submit">Enviar</button>
+                <button type="submit" disabled={loginLoading}>Enviar</button>
+                {loginLoading && (<span><FontAwesomeIcon icon={faSpinner} size="lg" spin /></span>)}
+                {loginError && (<span>Email ou senha incorretos.</span>)}
             </form>
         </div>
     );
