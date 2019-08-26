@@ -12,6 +12,11 @@
   flex-direction: column;
 }
 
+.login-container h1 {
+  text-align: center;
+  margin-top: 10px;
+}
+
 .login-container form input {
   margin-top: 20px;
   border: 1px solid #ddd;
@@ -36,6 +41,11 @@
   font-weight: bold;
   color: #fff;
   cursor: pointer;
+}
+
+.login-container form button:disabled {
+  color: #a3a3a3;
+  cursor: not-allowed;
 }
 
 .login-container form span {
