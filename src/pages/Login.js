@@ -1,57 +1,78 @@
-import React, { useState } from 'react';
-import { useMutation } from '@apollo/react-hooks';
-import gql from 'graphql-tag';
+import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSpinner } from '@fortawesome/free-solid-svg-icons'
+import { Button } from 'react-bootstrap';
 
-import './Login.css';
+import api from '../services/api';
+import { setAuth, deleteAuth } from '../services/auth';
 import logo from '../assets/medeirostec_logo.png'
-
-const LOGIN = gql`
-    mutation login($email: String!, $password: String!) {
-        login(email: $email, password: $password )
-    }
-`;
 
 export default function Login({ history }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [login, { loading: loginLoading, error: loginError }] = useMutation(LOGIN, 
-        {
-            onCompleted: onLoginCompleted,
-        }
-    );
-    
-    function onLoginCompleted (data) {
-        console.log(data)
-    }
+    const [loading, setLoading] = useState(false);
+    const [getError, setError] = useState('');
 
+    useEffect(
+        () => {
+            deleteAuth();
+        }
+    , [])
+    
     async function handleSubmit(e) {
         e.preventDefault();
-        login({ variables: { email, password } });
-        //history.push('/main');
+        setLoading(true);
+        setError('');
+        try {
+            const response = await api.post('/auth/login', { email, password });
+            setAuth('auth', response.data.data);
+            history.push('Main');
+        } catch (error) {
+            console.log('erro', error.response);
+            if (error.response && error.response.data) {
+                setError(error.response.data.message);
+            } else {
+                setError('Não foi possível fazer Login, tente novamente mais tarde.');
+            }
+        }
+        setLoading(false);
     }
 
     return (
-        <div className="login-container">
-            <form onSubmit={handleSubmit}>
-                <img src={logo} alt="MedeirosTEC" />
-                <input 
-                    placeholder="Digite seu email" 
-                    value={email} 
-                    onChange={e => setEmail(e.target.value)}
-                />
-                <input 
-                    type="password" 
-                    placeholder="Digite sua senha"
-                    value={password} 
-                    onChange={e => setPassword(e.target.value)}
-                />
-                <button type="submit" disabled={loginLoading}>Entrar</button>
-                {loginLoading && (<span><FontAwesomeIcon icon={faSpinner} size="lg" spin /></span>)}
-                {loginError && (<span>Email ou senha incorretos.</span>)}
-                <span>Não tem conta? <a href="/signup">Cadastre-se</a></span>
-            </form>
+        <div className="container h-100 d-flex justify-content-center align-items-center">
+            <div className="d-flex flex-column align-items-center">
+                <form onSubmit={handleSubmit}>
+                    <div className="mb-4">
+                        <img src={logo} alt="MedeirosTEC" />
+                    </div>
+                    <div className="form-group">
+                        <input 
+                            type="email" 
+                            className="form-control" 
+                            placeholder="Digite seu email" 
+                            value={email} 
+                            onChange={e => setEmail(e.target.value)}
+                        />
+                    </div>
+                    <div className="form-group">
+                        <input 
+                            type="password" 
+                            className="form-control" 
+                            placeholder="Digite sua senha"
+                            value={password} 
+                            onChange={e => setPassword(e.target.value)}
+                        />
+                    </div>
+                    <Button type="submit" disabled={loading} block >Entrar</Button>
+                    <div className="p-2 text-center">
+                        {loading && (<span><FontAwesomeIcon icon={faSpinner} size="lg" spin /></span>)}
+                        {getError && (<span>{getError}</span>)}
+                    </div>
+                    <div className="p-2 text-center">
+                        Não tem conta? <Button type="submit" href="/signup" variant="outline-info">Cadastre-se</Button>
+                    </div>
+                </form>
+            </div>
         </div>
     );
 }
