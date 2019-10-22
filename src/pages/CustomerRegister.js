@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useMutation } from '@apollo/react-hooks';
 import gql from 'graphql-tag';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -6,34 +6,52 @@ import { faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { Button } from 'react-bootstrap';
 
 import logo from '../assets/medeirostec_logo.png'
+import { getAuth } from '../services/auth';
 
 const REGISTER = gql`
     mutation ($name: String!, $email: String, $address: String, $city: String, $state: String, $zip: String, $user_id: Int!) {
-        insert_customers( name: $name, email: $email, address: $address, city: $city, zip: $zip, user_id: $user_id ) { returning { id } }
+        insert_customers(objects: {name: $name, email: $email, address: $address, city: $city, zip: $zip, user_id: $user_id}) {
+          returning { id }
+        }
     }
 `;
 
 export default function CustomerRegister({ history }) {
-    const user_id = 1;
+    const [user_id, setUserId] = useState('');
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [address, setAddress] = useState('');
     const [city, setCity] = useState('');
     const [state, setState] = useState('');
     const [zip, setZip] = useState('');
-    const [register, { loading: registerLoading, error: registerError }] = useMutation(REGISTER, 
-        {
-            onCompleted: onRegisterCompleted,
+    const [loading, setLoading] = useState(false);
+    const [register] = useMutation(REGISTER);
+
+    useEffect(
+        () => {
+            const auth = getAuth();
+            if (auth) {
+                setUserId(auth.user.id);
+            }
         }
-    );
+    , [])
     
-    function onRegisterCompleted (data) {
-        console.log(data)
-    }
+    // function onCompleted (data) {
+    //     setLoading(false);
+    //     console.log(data)
+    // }
+
+    // function onError (data) {
+    //     setLoading(false);
+    //     console.log(data)
+    // }
 
     async function handleSubmit(e) {
         e.preventDefault();
+        setLoading(true);
         register({ variables: { name, email, address, city, state, zip, user_id } });
+        setLoading(false);
+
         //history.push('/main');
     }
 
@@ -99,10 +117,9 @@ export default function CustomerRegister({ history }) {
                             onChange={e => setCity(e.target.value)}
                         />
                     </div>
-                    <Button type="submit" disabled={registerLoading} block >Cadastrar</Button>
+                    <Button type="submit" disabled={loading} block >Cadastrar</Button>
                     <div className="p-2 text-center">
-                        {registerLoading && (<span><FontAwesomeIcon icon={faSpinner} size="lg" spin /></span>)}
-                        {registerError && (<span>Não foi possível fazer o cadastro.</span>)}
+                        {loading && (<span><FontAwesomeIcon icon={faSpinner} size="lg" spin /></span>)}
                     </div>
                 </form>
             </div>

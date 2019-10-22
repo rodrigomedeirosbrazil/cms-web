@@ -13,7 +13,9 @@ export default function Main ({ history }) {
     useEffect(
         () => {
             const auth = getAuth();
-            setName(auth.user.name);
+            if (auth) {
+                setName(auth.user.name);
+            }
         }
     , [])
 

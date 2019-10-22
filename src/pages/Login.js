@@ -25,8 +25,12 @@ export default function Login({ history }) {
         setError('');
         try {
             const response = await api.post('/auth/login', { email, password });
-            setAuth('auth', response.data.data);
-            history.push('Main');
+            if(response.data) {
+                setAuth(response.data.data);
+                history.push('Main');
+            } else {
+                throw new Error();
+            }
         } catch (error) {
             console.log('erro', error.response);
             if (error.response && error.response.data) {
