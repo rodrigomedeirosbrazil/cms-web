@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons'
 import { ListGroup } from 'react-bootstrap';
+import { Link } from 'react-router-dom'
 
 import logo from '../assets/medeirostec_logo.png'
 import { getAuth } from '../services/auth';
@@ -29,22 +30,30 @@ export default function Main ({ history }) {
                     <p className="text-center">Bem vindo <b>{ name }</b>!</p>
 
                     <ListGroup>
-                        <ListGroup.Item action href="/costumers">
-                            Clientes
-                            <FontAwesomeIcon icon={ faChevronRight } className="float-right" />
-                        </ListGroup.Item>
-                        <ListGroup.Item action href="/items">
-                            Produtos
-                            <FontAwesomeIcon icon={ faChevronRight } className="float-right" />
-                        </ListGroup.Item>
-                        <ListGroup.Item action href="/orders">
-                            Pedidos
-                            <FontAwesomeIcon icon={ faChevronRight } className="float-right" />
-                        </ListGroup.Item>
-                        <ListGroup.Item action href="/reports" disabled>
-                            Relatórios
-                            <FontAwesomeIcon icon={ faChevronRight } className="float-right" />
-                        </ListGroup.Item>
+                        <Link to="/customers">
+                            <ListGroup.Item action>
+                                Clientes
+                                <FontAwesomeIcon icon={ faChevronRight } className="float-right" />
+                            </ListGroup.Item>
+                        </Link>
+                        <Link to="/items">
+                            <ListGroup.Item action href="/items">
+                                Produtos
+                                <FontAwesomeIcon icon={ faChevronRight } className="float-right" />
+                            </ListGroup.Item>
+                        </Link>
+                        <Link to="/orders">
+                            <ListGroup.Item action href="/orders">
+                                Pedidos
+                                <FontAwesomeIcon icon={ faChevronRight } className="float-right" />
+                            </ListGroup.Item>
+                        </Link>
+                        <Link to="/reports">
+                            <ListGroup.Item action href="/reports" disabled>
+                                Relatórios
+                                <FontAwesomeIcon icon={ faChevronRight } className="float-right" />
+                            </ListGroup.Item>
+                        </Link>
                     </ListGroup>
                 </div>
             </div>

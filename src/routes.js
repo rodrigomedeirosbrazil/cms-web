@@ -6,7 +6,8 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Main from './pages/Main';
 import Customers from './pages/Customers';
-import CustomerRegister from './pages/CustomerRegister';
+import CustomerNew from './pages/CustomerNew';
+import Customer from './pages/Customer';
 
 
 export default function Routes () {
@@ -18,7 +19,8 @@ export default function Routes () {
                 <Route path="/signup" exact component={Signup}/>
                 <Route path="/main" exact component={Main}/>
                 <Route path="/customers" exact component={Customers}/>
-                <Route path="/customerRegister" exact component={CustomerRegister}/>
+                <Route path="/customerNew" exact component={CustomerNew}/>
+                <Route path="/customer/:id" component={Customer}/>
             </Switch>
         </BrowserRouter>
     )

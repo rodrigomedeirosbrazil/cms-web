@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faSpinner } from '@fortawesome/free-solid-svg-icons'
+import { faSpinner, faSignInAlt, faUserPlus } from '@fortawesome/free-solid-svg-icons'
 import { Button } from 'react-bootstrap';
 
 import api from '../services/api';
@@ -67,13 +67,13 @@ export default function Login({ history }) {
                             onChange={e => setPassword(e.target.value)}
                         />
                     </div>
-                    <Button type="submit" disabled={loading} block >Entrar</Button>
+                    <Button type="submit" disabled={loading} block ><span><FontAwesomeIcon icon={faSignInAlt}  size="lg"/></span> Entrar</Button>
                     <div className="p-2 text-center">
                         {loading && (<span><FontAwesomeIcon icon={faSpinner} size="lg" spin /></span>)}
                         {getError && (<span>{getError}</span>)}
                     </div>
                     <div className="p-2 text-center">
-                        Não tem conta? <Button type="submit" href="/signup" variant="outline-info">Cadastre-se</Button>
+                        Não tem conta? <Button type="submit" href="/signup" variant="outline-info"><span><FontAwesomeIcon icon={faUserPlus}  size="lg"/></span> Cadastre-se</Button>
                     </div>
                 </form>
             </div>

@@ -5,9 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { Button } from 'react-bootstrap';
 
-import logo from '../assets/medeirostec_logo.png'
-
-const REGISTER = gql`
+const NEWCUSTOMER = gql`
     mutation ($name: String!, $email: String, $address: String, $city: String, $state: String, $zip: String) {
         insert_customers(objects: {name: $name, email: $email, address: $address, city: $city, state: $state, zip: $zip}) {
           returning { id }
@@ -22,9 +20,9 @@ export default function CustomerRegister({ history }) {
     const [city, setCity] = useState('');
     const [state, setState] = useState('');
     const [zip, setZip] = useState('');
-    const [register, { loading }] = 
+    const [newCustomer, { loading }] = 
         useMutation(
-            REGISTER, 
+            NEWCUSTOMER, 
             { 
                 variables: { 
                     name, email, address, city, state, zip
@@ -34,7 +32,7 @@ export default function CustomerRegister({ history }) {
 
     async function handleSubmit(e) {
         e.preventDefault();
-        register({ variables: { name, email, address, city, state, zip } });
+        newCustomer({ variables: { name, email, address, city, state, zip } });
         //history.push('/main');
     }
 
@@ -42,9 +40,6 @@ export default function CustomerRegister({ history }) {
         <div className="container h-100 d-flex justify-content-center align-items-center">
             <div className="d-flex flex-column align-items-center">
                 <form onSubmit={handleSubmit}>
-                    <div className="mb-4">
-                        <img src={logo} alt="MedeirosTEC" />
-                    </div>
                     <h1 className="text-center p-2">Cadastro de Cliente</h1>
                     <div className="form-group">
                         <input 
