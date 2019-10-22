@@ -1,31 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useQuery } from '@apollo/react-hooks';
 import gql from 'graphql-tag';
 
-import { getAuth } from '../services/auth';
 import Navbar from '../components/Navbar';
 
 const CUSTOMERS = gql`
-    query ($user_id: Int!) {
-        customers (where: { user_id: { _eq: $user_id } }) { 
+    query {
+        customers { 
             id, name, email 
         }
     }
 `;
 
 export default function Customers ({ history }) {
-    const [userId, setUserId] = useState(null);
-    const {data, error, loading} = useQuery(CUSTOMERS, { variables: { user_id: userId } });
+    const {data, error, loading} = useQuery(CUSTOMERS);
     
-    useEffect(
-        () => {
-            const auth = getAuth();
-            if (auth) {
-                setUserId(auth.user.id);
-            }
-        }
-    , [])
-
     return (
         <>
         <Navbar></Navbar>

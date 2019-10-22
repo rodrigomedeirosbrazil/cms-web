@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useMutation } from '@apollo/react-hooks';
 import gql from 'graphql-tag';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -6,52 +6,35 @@ import { faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { Button } from 'react-bootstrap';
 
 import logo from '../assets/medeirostec_logo.png'
-import { getAuth } from '../services/auth';
 
 const REGISTER = gql`
-    mutation ($name: String!, $email: String, $address: String, $city: String, $state: String, $zip: String, $user_id: Int!) {
-        insert_customers(objects: {name: $name, email: $email, address: $address, city: $city, zip: $zip, user_id: $user_id}) {
+    mutation ($name: String!, $email: String, $address: String, $city: String, $state: String, $zip: String) {
+        insert_customers(objects: {name: $name, email: $email, address: $address, city: $city, state: $state, zip: $zip}) {
           returning { id }
         }
     }
 `;
 
 export default function CustomerRegister({ history }) {
-    const [user_id, setUserId] = useState('');
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [address, setAddress] = useState('');
     const [city, setCity] = useState('');
     const [state, setState] = useState('');
     const [zip, setZip] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [register] = useMutation(REGISTER);
-
-    useEffect(
-        () => {
-            const auth = getAuth();
-            if (auth) {
-                setUserId(auth.user.id);
+    const [register, { loading }] = 
+        useMutation(
+            REGISTER, 
+            { 
+                variables: { 
+                    name, email, address, city, state, zip
+                } 
             }
-        }
-    , [])
-    
-    // function onCompleted (data) {
-    //     setLoading(false);
-    //     console.log(data)
-    // }
-
-    // function onError (data) {
-    //     setLoading(false);
-    //     console.log(data)
-    // }
+        );
 
     async function handleSubmit(e) {
         e.preventDefault();
-        setLoading(true);
-        register({ variables: { name, email, address, city, state, zip, user_id } });
-        setLoading(false);
-
+        register({ variables: { name, email, address, city, state, zip } });
         //history.push('/main');
     }
 
