@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation } from '@apollo/react-hooks';
 import gql from 'graphql-tag';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { useParams } from "react-router";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faSave } from '@fortawesome/free-solid-svg-icons'
 import { Button } from 'react-bootstrap';
 
 import Navbar from '../components/Navbar';
+import CustomerForm from '../components/CustomerForm';
 
 const CUSTOMER = gql`
     query ($id: Int!) {
         customers (where: { id: { _eq: $id } }) { 
-            id, name, email 
+            id, name, email, address, city, state, zip
         }
     }
 `;
@@ -26,12 +27,9 @@ const UPDATECUSTOMER = gql`
 
 export default function Customers ({ history }) {
     let { id } = useParams();
-    const [name, setName] = useState('');
-    const [email, setEmail] = useState(''); //data.customers[0].email
-    const [address, setAddress] = useState('');
-    const [city, setCity] = useState('');
-    const [state, setState] = useState('');
-    const [zip, setZip] = useState('');
+    const [values, setValues] = useState({});
+    const [updated, setUpdated] = useState(false);
+
     const {data, error, loading} = 
         useQuery(
             CUSTOMER, 
@@ -39,30 +37,30 @@ export default function Customers ({ history }) {
                 variables: { id }, 
                 onCompleted: () => {
                     if (data && data.customers.length === 1) {
-                        setName(data.customers[0].name);
-                        setEmail(data.customers[0].email);
-                        setAddress(data.customers[0].address);
-                        setCity(data.customers[0].city);
-                        setState(data.customers[0].state);
-                        setZip(data.customers[0].zip);
+                        delete data.customers[0].__typename;
+                        setValues({...data.customers[0]})
                     }
                 }
             }
         );
-    const [updateCustomer, { loadingUpdate }] = 
+    const [updateCustomer, { loading: loadingUpdate, error: errorUpdate }] = 
         useMutation(
             UPDATECUSTOMER, 
             { 
-                variables: { 
-                    id, name, email, address, city, state, zip
-                } 
+                variables: { ...values },
+                onCompleted: () => {
+                    setUpdated(true);
+                }
             }
         );
 
-    async function handleSubmit(e) {
-        e.preventDefault();
-        updateCustomer({ variables: { id, name, email, address, city, state, zip } });
-        //history.push('/main');
+    const handleChange = (event) => {
+        setValues({ ...values, [event.target.name]: event.target.value });
+    };
+
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        updateCustomer();
     }
 
     return (
@@ -70,72 +68,29 @@ export default function Customers ({ history }) {
         <Navbar></Navbar>
         <div className="container-fluid">
             <div className="row" style={{ marginTop: 50 }}>
-                <div className="col-md-10 offset-md-1">
+                <div className="col-md-6 offset-md-3">
                     <h2>Cliente: </h2>
+                    { updated && (
+                    <div className="alert alert-success" role="alert">
+                        Dados foram gravados com sucesso!
+                    </div>
+                    )}
+                    {errorUpdate && (
+                        <div className="alert alert-success" role="alert">
+                            Houve um erro durante a gravação: {errorUpdate.message}
+                        </div>
+                    )}
                     { loading ? (
-                        <span className="text-center"><FontAwesomeIcon icon={faSpinner} size="lg" spin /></span>
+                        <div className="spinner-border" role="status"></div>
                     ) : error ? (<h3>Houve um erro: {error.message}</h3>) : (
                     <div>
                         <form onSubmit={handleSubmit}>
-                            <h1 className="text-center p-2">Cadastro de Cliente</h1>
-                            <div className="form-group">
-                                <input 
-                                    type="text" 
-                                    className="form-control" 
-                                    placeholder="Digite seu nome" 
-                                    value={name} 
-                                    onChange={e => setName(e.target.value)}
-                                />
-                            </div>
-                            <div className="form-group">
-                                <input 
-                                    type="email" 
-                                    className="form-control" 
-                                    placeholder="Digite seu email" 
-                                    value={email} 
-                                    onChange={e => setEmail(e.target.value)}
-                                />
-                            </div>
-                            <div className="form-group">
-                                <input 
-                                    type="zip" 
-                                    className="form-control" 
-                                    placeholder="Digite seu CEP" 
-                                    value={zip} 
-                                    onChange={e => setZip(e.target.value)}
-                                />
-                            </div>
-                            <div className="form-group">
-                                <input 
-                                    type="address" 
-                                    className="form-control" 
-                                    placeholder="Digite seu endereço completo" 
-                                    value={address} 
-                                    onChange={e => setAddress(e.target.value)}
-                                />
-                            </div>
-                            <div className="form-group">
-                                <input 
-                                    type="state" 
-                                    className="form-control" 
-                                    placeholder="Digite seu Estado" 
-                                    value={state} 
-                                    onChange={e => setState(e.target.value)}
-                                />
-                            </div>
-                            <div className="form-group">
-                                <input 
-                                    type="city" 
-                                    className="form-control" 
-                                    placeholder="Digite sua Cidade" 
-                                    value={city} 
-                                    onChange={e => setCity(e.target.value)}
-                                />
-                            </div>
-                            <Button type="submit" disabled={loadingUpdate} block >Salvar</Button>
-                            <div className="p-2 text-center">
-                                {loadingUpdate && (<span><FontAwesomeIcon icon={faSpinner} size="lg" spin /></span>)}
-                            </div>
+                            <CustomerForm values={values} handleChange={handleChange} />
+                            <Button type="submit" disabled={loadingUpdate} block >
+                                {loadingUpdate ? (<div className="spinner-border spinner-border-sm" role="status"></div>) 
+                                : (<span><FontAwesomeIcon icon={faSave}  size="lg"/></span> )}
+                                &nbsp;Salvar
+                            </Button>
                         </form>
                     </div>
                     )}

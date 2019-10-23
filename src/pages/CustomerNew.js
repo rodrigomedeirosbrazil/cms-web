@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import { useMutation } from '@apollo/react-hooks';
 import gql from 'graphql-tag';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faSpinner } from '@fortawesome/free-solid-svg-icons'
+import { faSave } from '@fortawesome/free-solid-svg-icons'
 import { Button } from 'react-bootstrap';
+
+import Navbar from '../components/Navbar';
+import CustomerForm from '../components/CustomerForm';
 
 const NEWCUSTOMER = gql`
     mutation ($name: String!, $email: String, $address: String, $city: String, $state: String, $zip: String) {
@@ -14,93 +17,60 @@ const NEWCUSTOMER = gql`
 `;
 
 export default function CustomerRegister({ history }) {
-    const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
-    const [address, setAddress] = useState('');
-    const [city, setCity] = useState('');
-    const [state, setState] = useState('');
-    const [zip, setZip] = useState('');
-    const [newCustomer, { loading }] = 
+    const [values, setValues] = useState({});
+    const [updated, setUpdated] = useState(false);
+
+    const [newCustomer, { loading, error }] = 
         useMutation(
             NEWCUSTOMER, 
             { 
-                variables: { 
-                    name, email, address, city, state, zip
-                } 
+                variables: { ...values },
+                onCompleted: () => {
+                    setUpdated(true);
+                    setValues({});
+                }
             }
         );
 
-    async function handleSubmit(e) {
-        e.preventDefault();
-        newCustomer({ variables: { name, email, address, city, state, zip } });
-        //history.push('/main');
+    const handleChange = (event) => {
+        setValues({ ...values, [event.target.name]: event.target.value });
+    };
+
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        newCustomer();
     }
 
     return (
-        <div className="container h-100 d-flex justify-content-center align-items-center">
-            <div className="d-flex flex-column align-items-center">
-                <form onSubmit={handleSubmit}>
-                    <h1 className="text-center p-2">Cadastro de Cliente</h1>
-                    <div className="form-group">
-                        <input 
-                            type="text" 
-                            className="form-control" 
-                            placeholder="Digite seu nome" 
-                            value={name} 
-                            onChange={e => setName(e.target.value)}
-                        />
+        <>
+            <Navbar></Navbar>
+            <div className="container-fluid">
+                <div className="row" style={{ marginTop: 50 }}>
+                    <div className="col-md-6 offset-md-3">
+                        <h2>Novo Cliente: </h2>
+                        {updated && (
+                            <div className="alert alert-success" role="alert">
+                                Dados foram gravados com sucesso!
+                            </div>
+                        )}
+                        {error && (
+                            <div className="alert alert-danger" role="alert">
+                                Houve um erro: {error.message}
+                            </div>
+                        )}
+                        <div>
+                            <form onSubmit={handleSubmit}>
+                                <CustomerForm values={values} handleChange={handleChange} />
+                                <Button type="submit" disabled={loading} block >
+                                    {loading ? (<div className="spinner-border spinner-border-sm" role="status"></div>)
+                                        : (<span><FontAwesomeIcon icon={faSave} size="lg" /></span>)}
+                                    &nbsp;Salvar
+                                </Button>
+                            </form>
+                        </div>
                     </div>
-                    <div className="form-group">
-                        <input 
-                            type="email" 
-                            className="form-control" 
-                            placeholder="Digite seu email" 
-                            value={email} 
-                            onChange={e => setEmail(e.target.value)}
-                        />
-                    </div>
-                    <div className="form-group">
-                        <input 
-                            type="zip" 
-                            className="form-control" 
-                            placeholder="Digite seu CEP" 
-                            value={zip} 
-                            onChange={e => setZip(e.target.value)}
-                        />
-                    </div>
-                    <div className="form-group">
-                        <input 
-                            type="address" 
-                            className="form-control" 
-                            placeholder="Digite seu endereço completo" 
-                            value={address} 
-                            onChange={e => setAddress(e.target.value)}
-                        />
-                    </div>
-                    <div className="form-group">
-                        <input 
-                            type="state" 
-                            className="form-control" 
-                            placeholder="Digite seu Estado" 
-                            value={state} 
-                            onChange={e => setState(e.target.value)}
-                        />
-                    </div>
-                    <div className="form-group">
-                        <input 
-                            type="city" 
-                            className="form-control" 
-                            placeholder="Digite sua Cidade" 
-                            value={city} 
-                            onChange={e => setCity(e.target.value)}
-                        />
-                    </div>
-                    <Button type="submit" disabled={loading} block >Cadastrar</Button>
-                    <div className="p-2 text-center">
-                        {loading && (<span><FontAwesomeIcon icon={faSpinner} size="lg" spin /></span>)}
-                    </div>
-                </form>
+                </div>
             </div>
-        </div>
+        </>
     );
 }

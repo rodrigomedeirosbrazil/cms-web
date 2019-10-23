@@ -14,13 +14,13 @@ export default function Routes () {
     return (
         <BrowserRouter>
             <Switch>
-                <Route path="/" exact component={Home}/>
-                <Route path="/login" exact component={Login}/>
-                <Route path="/signup" exact component={Signup}/>
-                <Route path="/main" exact component={Main}/>
-                <Route path="/customers" exact component={Customers}/>
-                <Route path="/customerNew" exact component={CustomerNew}/>
-                <Route path="/customer/:id" component={Customer}/>
+                <Route name="home" path="/" exact component={Home}/>
+                <Route name="login" path="/login" exact component={Login}/>
+                <Route name="signup" path="/signup" exact component={Signup}/>
+                <Route name="main" path="/main" exact component={Main}/>
+                <Route name="customers" path="/customers" exact component={Customers}/>
+                <Route name="customerNew" path="/customer/new" exact component={CustomerNew}/>
+                <Route name="customer" path="/customer/:id" component={Customer}/>
             </Switch>
         </BrowserRouter>
     )
