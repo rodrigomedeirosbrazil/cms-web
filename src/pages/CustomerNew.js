@@ -4,6 +4,8 @@ import gql from 'graphql-tag';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSave } from '@fortawesome/free-solid-svg-icons'
 import { Button } from 'react-bootstrap';
+import cep from 'cep-promise';
+import { useDebouncedCallback } from 'use-debounce';
 
 import Navbar from '../components/Navbar';
 import CustomerForm from '../components/CustomerForm';
@@ -20,6 +22,22 @@ export default function CustomerRegister({ history }) {
     const [values, setValues] = useState({});
     const [updated, setUpdated] = useState(false);
 
+    const [debouncedCallback] = useDebouncedCallback(
+        (zip) => {
+            console.log('consultando cep '+zip);
+            cep(zip)
+                .then((data) => {
+                    console.log(data);
+                    const address = data.street + ', - ' + data.neighborhood;
+                    const city = data.city;
+                    const state = data.state;
+                    setValues({ ...values, address, city, state })
+                })
+        },
+        // delay in ms
+        1000
+    );
+
     const [newCustomer, { loading, error }] = 
         useMutation(
             NEWCUSTOMER, 
@@ -33,6 +51,10 @@ export default function CustomerRegister({ history }) {
         );
 
     const handleChange = (event) => {
+        if (event.target.name === 'zip') {
+            debouncedCallback(event.target.value)
+        }
+        
         setValues({ ...values, [event.target.name]: event.target.value });
     };
 
