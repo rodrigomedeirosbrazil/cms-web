@@ -8476,6 +8476,14 @@ react-hook-form@^3.24.1:
   resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-3.24.1.tgz#07860bf0cf64a7a8ff5e752521d69da2edaaa92f"
   integrity sha512-tF3f7tYP7cF1h+AiO5vdHexTiaq94VWeiRgnbYQTD9BjLRxugyHZAA2IvYWkD3Q4L+3tnF9ORd8YRx27JnIPKw==
 
+react-input-mask@^2.0.4:
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/react-input-mask/-/react-input-mask-2.0.4.tgz#9ade5cf8196f4a856dbf010820fe75a795f3eb14"
+  integrity sha512-1hwzMr/aO9tXfiroiVCx5EtKohKwLk/NT8QlJXHQ4N+yJJFyUuMT+zfTpLBwX/lK3PkuMlievIffncpMZ3HGRQ==
+  dependencies:
+    invariant "^2.2.4"
+    warning "^4.0.2"
+
 react-is@^16.3.2, react-is@^16.6.0, react-is@^16.7.0, react-is@^16.8.1, react-is@^16.8.4:
   version "16.10.2"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.10.2.tgz#984120fd4d16800e9a738208ab1fba422d23b5ab"

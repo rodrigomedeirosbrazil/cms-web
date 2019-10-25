@@ -1,34 +1,29 @@
-import React from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faSave } from '@fortawesome/free-solid-svg-icons'
+import React, { useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSave, faSearch } from '@fortawesome/free-solid-svg-icons';
 import cep from 'cep-promise';
-import { useDebouncedCallback } from 'use-debounce';
-import useForm from 'react-hook-form'
+import useForm from 'react-hook-form';
+import InputMask from "react-input-mask";
 
 const CustomerForm = ({values, setValues, onSubmit, loading}) => {
     const { register, handleSubmit, errors } = useForm();
+    const [loadingCep, setLoadingCep] = useState(false);
 
-    const [debouncedCallback] = useDebouncedCallback(
-        (zip) => {
-            console.log('consultando cep ' + zip);
-            cep(zip)
-                .then((data) => {
-                    console.log(data);
-                    const address = data.street + ', - ' + data.neighborhood;
-                    const city = data.city;
-                    const state = data.state;
-                    setValues({ ...values, address, city, state })
-                })
-        },
-        // delay in ms
-        1000
-    );
+    const searchCep = () => {
+        console.log('consultando cep ' + values.zip);
+        setLoadingCep(true);
+        
+        cep(values.zip)
+        .then((data) => {
+            setLoadingCep(false);
+            const address = data.street + ', - ' + data.neighborhood;
+            const city = data.city;
+            const state = data.state;
+            setValues({ ...values, address, city, state })
+        })
+    }
 
     const handleChange = (event) => {
-        if (event.target.name === 'zip') {
-            debouncedCallback(event.target.value)
-        }
-
         setValues({ ...values, [event.target.name]: event.target.value });
     };
 
@@ -65,15 +60,23 @@ const CustomerForm = ({values, setValues, onSubmit, loading}) => {
             </div>
             <div className="form-group">
                 <label>CEP</label>
-                <input 
-                    type="zip" 
-                    className="form-control" 
-                    placeholder="Digite o CEP" 
-                    onChange={handleChange} 
-                    defaultValue={values.zip || ''}
-                    name="zip"
-                    ref={register}
-                />
+                <div className="row">
+                    <div className="col-10">
+                        <InputMask mask="99.999-999"
+                            className="form-control"
+                            onChange={handleChange}
+                            defaultValue={values.zip || ''}
+                            name="zip"
+                            ref={register}
+                        />
+                    </div>
+                    <div className="col-2">
+                        <button onClick={searchCep} disabled={loadingCep} className="btn btn-primary">
+                            {loadingCep ? (<div className="spinner-border spinner-border-sm" role="status"></div>)
+                                : (<span><FontAwesomeIcon icon={faSearch} size="lg" /></span>)}
+                        </button>
+                    </div>
+                </div>
             </div>
             <div className="form-group">
                 <label>Endereço completo</label>
