@@ -4,6 +4,7 @@ import gql from 'graphql-tag';
 
 import Navbar from '../components/Navbar';
 import CustomerForm from '../components/CustomerForm';
+import Modal from '../components/Modal';
 
 const NEWCUSTOMER = gql`
     mutation ($name: String!, $email: String, $address: String, $city: String, $state: String, $zip: String) {
@@ -15,7 +16,7 @@ const NEWCUSTOMER = gql`
 
 export default function CustomerRegister({ history }) {
     const [values, setValues] = useState({});
-    const [updated, setUpdated] = useState(false);
+    const [showModal, setShowModal] = useState(false);
 
     const [newCustomer, { loading, error }] = 
         useMutation(
@@ -23,7 +24,7 @@ export default function CustomerRegister({ history }) {
             { 
                 variables: { ...values },
                 onCompleted: () => {
-                    setUpdated(true);
+                    setShowModal(true);
                     setValues({});
                 }
             }
@@ -36,16 +37,20 @@ export default function CustomerRegister({ history }) {
 
     return (
         <>
-            <Navbar></Navbar>
+            <Navbar />
+            <Modal 
+                show={showModal} 
+                setShow={setShowModal} 
+                header="Sucesso" 
+                body="Dados foram gravados com sucesso!" 
+                showCancel={false} 
+                onClose={ () => history.push('/customers') } 
+            />
+            
             <div className="container-fluid">
                 <div className="row" style={{ marginTop: 50 }}>
                     <div className="col-md-6 offset-md-3">
                         <h2>Novo Cliente: </h2>
-                        {updated && (
-                            <div className="alert alert-success" role="alert">
-                                Dados foram gravados com sucesso!
-                            </div>
-                        )}
                         {error && (
                             <div className="alert alert-danger" role="alert">
                                 Houve um erro: {error.message}
