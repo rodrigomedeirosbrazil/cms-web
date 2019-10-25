@@ -9,7 +9,7 @@ import Navbar from '../components/Navbar';
 
 const CUSTOMERS = gql`
     query {
-        customers (order_by: {name: asc}) { 
+        customers (where: {active: {_eq: true}}, order_by: {name: asc}) { 
             id, name, email 
         }
     }
@@ -45,7 +45,7 @@ export default function Customers ({ history }) {
                                         <td>{ customer.email }</td>
                                         <td>
                                             <Button size="sm" href={ '/customer/' + customer.id } className="ml-1"><span><FontAwesomeIcon icon={faUserEdit} size="sm"/></span></Button>
-                                            <Button size="sm" variant="danger" className="ml-1"><span><FontAwesomeIcon icon={faTrash} size="sm"/></span></Button>
+                                            <Button size="sm" href={'/customer/del/' + customer.id} variant="danger" className="ml-1"><span><FontAwesomeIcon icon={faTrash} size="sm"/></span></Button>
                                         </td>
                                     </tr>
                                 )

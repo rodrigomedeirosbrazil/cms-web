@@ -7,6 +7,7 @@ import Signup from './pages/Signup';
 import Main from './pages/Main';
 import Customers from './pages/Customers';
 import CustomerNew from './pages/CustomerNew';
+import CustomerDel from './pages/CustomerDel';
 import Customer from './pages/Customer';
 
 
@@ -19,7 +20,8 @@ export default function Routes () {
                 <Route name="signup" path="/signup" exact component={Signup}/>
                 <Route name="main" path="/main" exact component={Main}/>
                 <Route name="customers" path="/customers" exact component={Customers}/>
-                <Route name="customerNew" path="/customer/new" exact component={CustomerNew}/>
+                <Route name="customerNew" path="/customer/new" exact component={CustomerNew} />
+                <Route name="customerDel" path="/customer/del/:id" component={CustomerDel}/>
                 <Route name="customer" path="/customer/:id" component={Customer}/>
             </Switch>
         </BrowserRouter>
