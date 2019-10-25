@@ -1,7 +1,6 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSave } from '@fortawesome/free-solid-svg-icons'
-import { Button } from 'react-bootstrap';
 import cep from 'cep-promise';
 import { useDebouncedCallback } from 'use-debounce';
 import useForm from 'react-hook-form'
@@ -112,11 +111,11 @@ const CustomerForm = ({values, setValues, onSubmit, loading}) => {
                     ref={register}
                 />
             </div>
-            <Button type="submit" disabled={loading} block >
+            <button type="submit" disabled={loading} className="btn btn-primary btn-block">
                 {loading ? (<div className="spinner-border spinner-border-sm" role="status"></div>)
                     : (<span><FontAwesomeIcon icon={faSave} size="lg" /></span>)}
                 &nbsp;Salvar
-            </Button>
+            </button>
         </form>
     )  
 }

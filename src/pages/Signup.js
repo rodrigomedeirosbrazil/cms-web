@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSpinner, faUserPlus } from '@fortawesome/free-solid-svg-icons'
-import { Button } from 'react-bootstrap';
 
 import api from '../services/api';
 import logo from '../assets/medeirostec_logo.png'
@@ -40,7 +39,7 @@ export default function Login({ history }) {
                         <img src={logo} alt="MedeirosTEC" />
                     </div>
                     <h1 className="text-center p-2">Cadastro</h1>
-                    <div class="form-group">
+                    <div className="form-group">
                         <input 
                             type="text" 
                             className="form-control" 
@@ -49,7 +48,7 @@ export default function Login({ history }) {
                             onChange={e => setName(e.target.value)}
                         />
                     </div>
-                    <div class="form-group">
+                    <div className="form-group">
                         <input 
                             type="email" 
                             className="form-control" 
@@ -58,7 +57,7 @@ export default function Login({ history }) {
                             onChange={e => setEmail(e.target.value)}
                         />
                     </div>
-                    <div class="form-group">
+                    <div className="form-group">
                         <input 
                             type="password" 
                             className="form-control" 
@@ -67,7 +66,7 @@ export default function Login({ history }) {
                             onChange={e => setPassword(e.target.value)}
                         />
                     </div>
-                    <Button type="submit" disabled={loading} block ><span><FontAwesomeIcon icon={faUserPlus}  size="lg"/></span> Cadastrar</Button>
+                    <button type="submit" disabled={loading} className="btn btn-primary btn-block" ><span><FontAwesomeIcon icon={faUserPlus}  size="lg"/></span> Cadastrar</button>
                     <div className="p-2 text-center">
                         {loading && (<span><FontAwesomeIcon icon={faSpinner} size="lg" spin /></span>)}
                         {getError && (<span>{getError}</span>)}
