@@ -4,7 +4,7 @@ import { Navbar as BSNavbar, Nav } from 'react-bootstrap';
 export default function Navbar({ history }) {
     return (
         <BSNavbar bg="light" expand="lg">
-            <BSNavbar.Brand href="#home">CMS MedeirosTEC</BSNavbar.Brand>
+            <BSNavbar.Brand href="/main">CMS MedeirosTEC</BSNavbar.Brand>
             <BSNavbar.Toggle aria-controls="basic-navbar-nav" />
             <BSNavbar.Collapse id="basic-navbar-nav">
                 <Nav className="mr-auto">

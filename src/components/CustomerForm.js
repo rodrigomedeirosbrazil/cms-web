@@ -1,18 +1,55 @@
 import React from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faSave } from '@fortawesome/free-solid-svg-icons'
+import { Button } from 'react-bootstrap';
+import cep from 'cep-promise';
+import { useDebouncedCallback } from 'use-debounce';
+import useForm from 'react-hook-form'
 
-const CustomerForm = ({values, handleChange}) => {
+const CustomerForm = ({values, setValues, onSubmit, loading}) => {
+    const { register, handleSubmit, errors } = useForm();
+
+    const [debouncedCallback] = useDebouncedCallback(
+        (zip) => {
+            console.log('consultando cep ' + zip);
+            cep(zip)
+                .then((data) => {
+                    console.log(data);
+                    const address = data.street + ', - ' + data.neighborhood;
+                    const city = data.city;
+                    const state = data.state;
+                    setValues({ ...values, address, city, state })
+                })
+        },
+        // delay in ms
+        1000
+    );
+
+    const handleChange = (event) => {
+        if (event.target.name === 'zip') {
+            debouncedCallback(event.target.value)
+        }
+
+        setValues({ ...values, [event.target.name]: event.target.value });
+    };
+
     return (
-        <>
+        <form onSubmit={handleSubmit(onSubmit)}>
+            { values.id && (
+                <input type="hidden" name="id" defaultValue={values.id || ''} ref={register} />
+            )}
             <div className="form-group">
-                <label>Nome {values.name}</label>
+                <label>Nome</label>
                 <input 
                     type="text" 
                     className="form-control" 
                     placeholder="Digite o nome" 
                     onChange={handleChange} 
-                    value={values.name || ''}
+                    defaultValue={values.name || ''}
                     name="name"
+                    ref={register({ required: true })}
                 />
+                <span className="text-danger">{errors.name && 'Nome é requerido'}</span>
             </div>
             <div className="form-group">
                 <label>Email</label>
@@ -21,9 +58,11 @@ const CustomerForm = ({values, handleChange}) => {
                     className="form-control" 
                     placeholder="Digite o email" 
                     onChange={handleChange} 
-                    value={values.email || ''}
+                    defaultValue={values.email || ''}
                     name="email"
+                    ref={register}
                 />
+                <span className="text-danger">{errors.email && errors.email.message}</span>
             </div>
             <div className="form-group">
                 <label>CEP</label>
@@ -32,8 +71,9 @@ const CustomerForm = ({values, handleChange}) => {
                     className="form-control" 
                     placeholder="Digite o CEP" 
                     onChange={handleChange} 
-                    value={values.zip || ''}
+                    defaultValue={values.zip || ''}
                     name="zip"
+                    ref={register}
                 />
             </div>
             <div className="form-group">
@@ -43,8 +83,9 @@ const CustomerForm = ({values, handleChange}) => {
                     className="form-control" 
                     placeholder="Digite o endereço completo" 
                     onChange={handleChange} 
-                    value={values.address || ''}
+                    defaultValue={values.address || ''}
                     name="address"
+                    ref={register}
                 />
             </div>
             <div className="form-group">
@@ -54,8 +95,9 @@ const CustomerForm = ({values, handleChange}) => {
                     className="form-control" 
                     placeholder="Digite o Estado. Exemplo: SP, BA, RJ" 
                     onChange={handleChange} 
-                    value={values.state || ''}
+                    defaultValue={values.state || ''}
                     name="state"
+                    ref={register}
                 />
             </div>
             <div className="form-group">
@@ -65,11 +107,17 @@ const CustomerForm = ({values, handleChange}) => {
                     className="form-control" 
                     placeholder="Digite a Cidade" 
                     onChange={handleChange} 
-                    value={values.city || ''}
+                    defaultValue={values.city || ''}
                     name="city"
+                    ref={register}
                 />
             </div>
-        </>
+            <Button type="submit" disabled={loading} block >
+                {loading ? (<div className="spinner-border spinner-border-sm" role="status"></div>)
+                    : (<span><FontAwesomeIcon icon={faSave} size="lg" /></span>)}
+                &nbsp;Salvar
+            </Button>
+        </form>
     )  
 }
 

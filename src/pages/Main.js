@@ -37,19 +37,19 @@ export default function Main ({ history }) {
                             </ListGroup.Item>
                         </Link>
                         <Link to="/items">
-                            <ListGroup.Item action href="/items">
+                            <ListGroup.Item action>
                                 Produtos
                                 <FontAwesomeIcon icon={ faChevronRight } className="float-right" />
                             </ListGroup.Item>
                         </Link>
                         <Link to="/orders">
-                            <ListGroup.Item action href="/orders">
+                            <ListGroup.Item action>
                                 Pedidos
                                 <FontAwesomeIcon icon={ faChevronRight } className="float-right" />
                             </ListGroup.Item>
                         </Link>
                         <Link to="/reports">
-                            <ListGroup.Item action href="/reports" disabled>
+                            <ListGroup.Item action disabled>
                                 Relatórios
                                 <FontAwesomeIcon icon={ faChevronRight } className="float-right" />
                             </ListGroup.Item>

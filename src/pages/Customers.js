@@ -26,11 +26,11 @@ export default function Customers ({ history }) {
                 <div className="col-md-10 offset-md-1">
                     <h2>Clientes <Button size="sm" href="/customer/new" className="ml-1"><span><FontAwesomeIcon icon={faPlusCircle} size="lg"/></span></Button></h2>
                     { loading ? (
-                        <div class="spinner-border" role="status"></div>
+                        <div className="spinner-border" role="status"></div>
                     ) : error ? (<h3>Houve um erro: {error.message}</h3>) : (
-                    <div class="table-responsive">
-                        <table class="table table-striped">
-                            <thead class="thead-dark">
+                    <div className="table-responsive">
+                        <table className="table table-striped">
+                            <thead className="thead-dark">
                                 <tr>
                                     <th>Nome</th>
                                     <th>Email</th>

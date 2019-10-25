@@ -68,7 +68,7 @@ export default function Login({ history }) {
                         />
                     </div>
                     <Button type="submit" disabled={loading} block >
-                        {loading ? (<div class="spinner-border spinner-border-sm" role="status"></div>) 
+                        {loading ? (<div className="spinner-border spinner-border-sm" role="status"></div>) 
                         : (<span><FontAwesomeIcon icon={faSignInAlt}  size="lg"/></span> )}
                         &nbsp;Entrar
                     </Button>

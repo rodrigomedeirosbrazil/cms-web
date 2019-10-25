@@ -2,9 +2,6 @@ import React, { useState } from 'react';
 import { useQuery, useMutation } from '@apollo/react-hooks';
 import gql from 'graphql-tag';
 import { useParams } from "react-router";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faSave } from '@fortawesome/free-solid-svg-icons'
-import { Button } from 'react-bootstrap';
 
 import Navbar from '../components/Navbar';
 import CustomerForm from '../components/CustomerForm';
@@ -38,7 +35,7 @@ export default function Customers ({ history }) {
                 onCompleted: () => {
                     if (data && data.customers.length === 1) {
                         delete data.customers[0].__typename;
-                        setValues({...data.customers[0]})
+                        setValues({...data.customers[0]});
                     }
                 }
             }
@@ -54,12 +51,8 @@ export default function Customers ({ history }) {
             }
         );
 
-    const handleChange = (event) => {
-        setValues({ ...values, [event.target.name]: event.target.value });
-    };
-
-    const handleSubmit = (event) => {
-        event.preventDefault();
+    const onSubmit = (data) => {
+        setValues(data);
         updateCustomer();
     }
 
@@ -76,7 +69,7 @@ export default function Customers ({ history }) {
                     </div>
                     )}
                     {errorUpdate && (
-                        <div className="alert alert-success" role="alert">
+                        <div className="alert alert-danger" role="alert">
                             Houve um erro durante a gravação: {errorUpdate.message}
                         </div>
                     )}
@@ -84,14 +77,7 @@ export default function Customers ({ history }) {
                         <div className="spinner-border" role="status"></div>
                     ) : error ? (<h3>Houve um erro: {error.message}</h3>) : (
                     <div>
-                        <form onSubmit={handleSubmit}>
-                            <CustomerForm values={values} handleChange={handleChange} />
-                            <Button type="submit" disabled={loadingUpdate} block >
-                                {loadingUpdate ? (<div className="spinner-border spinner-border-sm" role="status"></div>) 
-                                : (<span><FontAwesomeIcon icon={faSave}  size="lg"/></span> )}
-                                &nbsp;Salvar
-                            </Button>
-                        </form>
+                        <CustomerForm values={values} setValues={setValues} onSubmit={onSubmit} loading={loadingUpdate} />
                     </div>
                     )}
                 </div>
