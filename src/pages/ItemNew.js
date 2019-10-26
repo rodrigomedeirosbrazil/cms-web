@@ -10,8 +10,8 @@ const NEWITEM = gql`
     mutation (
         $name: String!, 
         $description: String, 
-        $value: money, 
-        $value_repo: money, 
+        $value: numeric, 
+        $value_repo: numeric, 
         $quantity: Int, 
         $width: Int,  
         $height: Int,  
