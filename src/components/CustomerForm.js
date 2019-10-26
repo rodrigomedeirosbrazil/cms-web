@@ -2,12 +2,11 @@ import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave, faSearch } from '@fortawesome/free-solid-svg-icons';
 import cep from 'cep-promise';
-import useForm from 'react-hook-form';
-import InputMask from "react-input-mask";
+import MaskedInput from 'react-text-mask'
 
 const CustomerForm = ({values, setValues, onSubmit, loading}) => {
-    const { register, handleSubmit, errors } = useForm();
     const [loadingCep, setLoadingCep] = useState(false);
+    const [errors, setErrors] = useState({});
 
     const searchCep = () => {
         console.log('consultando cep ' + values.zip);
@@ -21,16 +20,30 @@ const CustomerForm = ({values, setValues, onSubmit, loading}) => {
             const state = data.state;
             setValues({ ...values, address, city, state })
         })
+        .catch(() => {
+            alert('Não foi possível encontrar o CEP');
+            setLoadingCep(false);
+        })
     }
 
     const handleChange = (event) => {
         setValues({ ...values, [event.target.name]: event.target.value });
     };
 
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        setErrors({});
+        if(values.name === '') {
+            setErrors({name: 'Campo obrigatório'});
+            return;
+        }
+        onSubmit(values);
+    };
+
     return (
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit}>
             { values.id && (
-                <input type="hidden" name="id" defaultValue={values.id || ''} ref={register} />
+                <input type="hidden" name="id" defaultValue={values.id || ''} />
             )}
             <div className="form-group">
                 <label>Nome</label>
@@ -41,9 +54,8 @@ const CustomerForm = ({values, setValues, onSubmit, loading}) => {
                     onChange={handleChange} 
                     defaultValue={values.name || ''}
                     name="name"
-                    ref={register({ required: true })}
                 />
-                <span className="text-danger">{errors.name && 'Nome é requerido'}</span>
+                <span className="text-danger">{errors.name && 'Esse campo é obrigatório'}</span>
             </div>
             <div className="form-group">
                 <label>Email</label>
@@ -54,7 +66,6 @@ const CustomerForm = ({values, setValues, onSubmit, loading}) => {
                     onChange={handleChange} 
                     defaultValue={values.email || ''}
                     name="email"
-                    ref={register}
                 />
                 <span className="text-danger">{errors.email && errors.email.message}</span>
             </div>
@@ -62,16 +73,16 @@ const CustomerForm = ({values, setValues, onSubmit, loading}) => {
                 <label>CEP</label>
                 <div className="row">
                     <div className="col-10">
-                        <InputMask mask="99.999-999"
+                        <MaskedInput 
+                            mask={[/\d/, /\d/, '.', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/]}
                             className="form-control"
                             onChange={handleChange}
                             defaultValue={values.zip || ''}
                             name="zip"
-                            ref={register}
                         />
                     </div>
                     <div className="col-2">
-                        <button onClick={searchCep} disabled={loadingCep} className="btn btn-primary">
+                        <button type="button" onClick={searchCep} disabled={loadingCep} className="btn btn-primary">
                             {loadingCep ? (<div className="spinner-border spinner-border-sm" role="status"></div>)
                                 : (<span><FontAwesomeIcon icon={faSearch} size="lg" /></span>)}
                         </button>
@@ -87,7 +98,6 @@ const CustomerForm = ({values, setValues, onSubmit, loading}) => {
                     onChange={handleChange} 
                     defaultValue={values.address || ''}
                     name="address"
-                    ref={register}
                 />
             </div>
             <div className="form-group">
@@ -99,7 +109,6 @@ const CustomerForm = ({values, setValues, onSubmit, loading}) => {
                     onChange={handleChange} 
                     defaultValue={values.state || ''}
                     name="state"
-                    ref={register}
                 />
             </div>
             <div className="form-group">
@@ -111,7 +120,6 @@ const CustomerForm = ({values, setValues, onSubmit, loading}) => {
                     onChange={handleChange} 
                     defaultValue={values.city || ''}
                     name="city"
-                    ref={register}
                 />
             </div>
             <button type="submit" disabled={loading} className="btn btn-primary btn-block">

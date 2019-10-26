@@ -68,7 +68,7 @@ export default function Customers ({ history }) {
                                 </tr>
                             </thead>
                             <tbody>
-                            { data && data.customers.map( 
+                            { data && data.customers && data.customers.length >0 ? data.customers.map( 
                                 customer => (
                                     <tr key={customer.id}>
                                         <td>{ customer.name }</td>
@@ -79,6 +79,10 @@ export default function Customers ({ history }) {
                                         </td>
                                     </tr>
                                 )
+                            ) : (
+                                <tr>
+                                    <td colSpan="3" className="text-center"><h1>VAZIO</h1></td>
+                                </tr>
                             )}
                             </tbody>
                         </table>

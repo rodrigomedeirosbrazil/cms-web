@@ -8,6 +8,9 @@ import Main from './pages/Main';
 import Customers from './pages/Customers';
 import CustomerNew from './pages/CustomerNew';
 import Customer from './pages/Customer';
+import Items from './pages/Items';
+import ItemNew from './pages/ItemNew';
+import Item from './pages/Item';
 
 
 export default function Routes () {
@@ -21,6 +24,9 @@ export default function Routes () {
                 <Route name="customers" path="/customers" exact component={Customers}/>
                 <Route name="customerNew" path="/customer/new" exact component={CustomerNew} />
                 <Route name="customer" path="/customer/:id" component={Customer}/>
+                <Route name="items" path="/items" exact component={Items} />
+                <Route name="itemNew" path="/item/new" exact component={ItemNew} />
+                <Route name="item" path="/item/:id" component={Item} />
             </Switch>
         </BrowserRouter>
     )
