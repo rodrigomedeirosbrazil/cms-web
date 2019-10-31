@@ -11,7 +11,9 @@ import Customer from './pages/Customer';
 import Items from './pages/Items';
 import ItemNew from './pages/ItemNew';
 import Item from './pages/Item';
-
+import Orders from './pages/Orders';
+import OrderNew from './pages/OrderNew';
+import Order from './pages/Order';
 
 export default function Routes () {
     return (
@@ -27,6 +29,9 @@ export default function Routes () {
                 <Route name="items" path="/items" exact component={Items} />
                 <Route name="itemNew" path="/item/new" exact component={ItemNew} />
                 <Route name="item" path="/item/:id" component={Item} />
+                <Route name="orders" path="/orders" exact component={Orders} />
+                <Route name="orderNew" path="/order/new" exact component={OrderNew} />
+                <Route name="order" path="/order/:id" component={Order} />
             </Switch>
         </BrowserRouter>
     )
