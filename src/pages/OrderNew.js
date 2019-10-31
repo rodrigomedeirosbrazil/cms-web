@@ -9,7 +9,7 @@ import Modal from '../components/Modal';
 const NEWORDER = gql`
     mutation (
         $description: String, 
-        $value: numeric!, 
+        $total: numeric!, 
         $date_pickup: date, 
         $date_back: date,
         $items: [order_item_insert_input!]!,
@@ -18,7 +18,7 @@ const NEWORDER = gql`
         insert_orders(
             objects: {
                 description: $description, 
-                value: $value, 
+                total: $value, 
                 date_pickup: $date_pickup,
                 date_back: $date_back,
                 order_items: {
@@ -49,8 +49,21 @@ export default function OrderNew({ history }) {
 
     const onSubmit = (data) => {
         console.log(data);
-        setValues(data);
-        newOrder();
+        delete data.customer_name;
+        const items = data.items.map( 
+            item => {
+                return {
+                    item_id: item.id,
+                    value: item.value,
+                    value_repo: item.value_repo,
+                    quantity: item.quantity,
+                }
+            }
+        );
+
+        data.items = items;
+
+        newOrder({ variables: { ...data } }); 
     }
 
     return (

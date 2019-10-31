@@ -10,7 +10,7 @@ import Modal from '../components/Modal';
 const ORDERS = gql`
     query {
         orders (where: {active: {_eq: true}}, order_by: {date_pickup: asc}) { 
-            id, description, value, date_pickup, date_back
+            id, description, total, date_pickup, date_back
             customer {
                 name
             } 
@@ -67,7 +67,7 @@ export default function Orders ({ history }) {
                                 <tr>
                                     <th>Cliente</th>
                                     <th>Descrição</th>
-                                    <th>Valor</th>
+                                    <th>Total</th>
                                     <th>Data retirada</th>
                                     <th>Data devolução</th>
                                     <th>Ações</th>
@@ -79,7 +79,7 @@ export default function Orders ({ history }) {
                                     <tr key={item.id}>
                                         <td>{ item.customer.name }</td>
                                         <td>{ item.description }</td>
-                                        <td>{ item.value }</td>
+                                        <td>{ item.total }</td>
                                         <td>{ item.date_pickup }</td>
                                         <td>{ item.date_back }</td>
                                         <td>

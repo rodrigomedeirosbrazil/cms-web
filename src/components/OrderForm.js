@@ -30,7 +30,7 @@ const OrderForm = ({values, setValues, onSubmit, loading}) => {
         setErrors(_errors);
         if (_errors) return;
 
-        onSubmit(values);
+        onSubmit({ ...values, total: total() });
     };
 
     const addItem = ({ id, name, value, value_repo }) => {
@@ -68,6 +68,15 @@ const OrderForm = ({values, setValues, onSubmit, loading}) => {
         const items = values.items.map( item => {return item});
         setValues({...values, items});
     };
+
+    const total = () => {
+        const _total = values.items
+            ? values.items.reduce((sum, i) => (
+                sum += i.quantity * i.value
+            ), 0)
+            : 0
+        return _total;
+    }
 
     return (
         <form onSubmit={handleSubmit}>
@@ -185,7 +194,17 @@ const OrderForm = ({values, setValues, onSubmit, loading}) => {
                     )}
                 </div>
                 <div className="card-footer text-muted">
-                    <Total items={values.items} /><br />
+                    Total:
+                    <NumberFormat
+                        value={total()}
+                        displayType={'text'}
+                        thousandSeparator={'.'}
+                        decimalSeparator={','}
+                        prefix={'R$'}
+                        decimalScale={2}
+                        fixedDecimalScale={true}
+                        renderText={value => value}
+                    /><br />
                     Peças: {values && values.items ? values.items.length: '0'}
                 </div>
             </div>
@@ -196,31 +215,6 @@ const OrderForm = ({values, setValues, onSubmit, loading}) => {
             </button>
         </form>
     )  
-}
-
-const Total = ({items}) => {
-
-    const total = items 
-        ? items.reduce((sum, i) => (
-            sum += i.quantity * i.value
-        ), 0)
-        : 0
-
-    return (
-        <span>
-            Total:  
-            <NumberFormat
-                value={total}
-                displayType={'text'}
-                thousandSeparator={'.'}
-                decimalSeparator={','}
-                prefix={'R$'}
-                decimalScale={2}
-                fixedDecimalScale={true}
-                renderText={value => value}
-            />
-        </span>
-    )
 }
 
 export default OrderForm;
