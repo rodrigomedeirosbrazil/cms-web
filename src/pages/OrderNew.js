@@ -12,17 +12,17 @@ const NEWORDER = gql`
         $total: numeric!, 
         $date_pickup: date, 
         $date_back: date,
-        $items: [order_item_insert_input!]!,
+        $order_items: [order_item_insert_input!]!,
         $customer_id: Int!,
     ) {
         insert_orders(
             objects: {
                 description: $description, 
-                total: $value, 
+                total: $total, 
                 date_pickup: $date_pickup,
                 date_back: $date_back,
                 order_items: {
-                    data: $items
+                    data: $order_items
                 },
                 customer_id: $customer_id,
             }
@@ -48,11 +48,14 @@ export default function OrderNew({ history }) {
         );
 
     const onSubmit = (data) => {
-        delete data.customer_name;
-        const items = data.items.map( 
+        let _data = { ...data };
+        delete _data.__typename;
+        delete _data.customer;
+        _data.customer_id = data.customer.id;
+        _data.order_items = data.order_items.map(
             item => {
                 return {
-                    item_id: item.id,
+                    item_id: item.item.id,
                     value: item.value,
                     value_repo: item.value_repo,
                     quantity: item.quantity,
@@ -60,9 +63,7 @@ export default function OrderNew({ history }) {
             }
         );
 
-        data.items = items;
-
-        newOrder({ variables: { ...data } }); 
+        newOrder({ variables: _data }); 
     }
 
     return (
