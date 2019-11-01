@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave, faTrash } from '@fortawesome/free-solid-svg-icons';
 import NumberFormat from 'react-number-format';
+import Moment from 'react-moment';
+import 'moment/locale/pt-br';
 
 import CustomerPicker from '../components/CustomerPicker';
 import ItemPicker from '../components/ItemPicker';
@@ -153,7 +155,7 @@ const OrderForm = ({values, setValues, onSubmit, loading}) => {
                     </div>
                     <div className="row">
                         <div className="col-12">
-                            Dias: 
+                            Dias: <Moment from={values.date_pickup} locale="pt-br" >{values.date_back}</Moment>
                         </div>
                     </div>
                 </div>

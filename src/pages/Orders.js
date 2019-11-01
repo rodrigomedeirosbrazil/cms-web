@@ -3,6 +3,8 @@ import { useQuery, useMutation } from '@apollo/react-hooks';
 import gql from 'graphql-tag';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit, faTrash, faPlusCircle } from '@fortawesome/free-solid-svg-icons'
+import NumberFormat from 'react-number-format';
+import Moment from 'react-moment';
 
 import Navbar from '../components/Navbar';
 import Modal from '../components/Modal';
@@ -79,9 +81,20 @@ export default function Orders ({ history }) {
                                     <tr key={item.id}>
                                         <td>{ item.customer.name }</td>
                                         <td>{ item.description }</td>
-                                        <td>{ item.total }</td>
-                                        <td>{ item.date_pickup }</td>
-                                        <td>{ item.date_back }</td>
+                                        <td>
+                                            <NumberFormat
+                                                value={item.total}
+                                                displayType={'text'}
+                                                thousandSeparator={'.'}
+                                                decimalSeparator={','}
+                                                prefix={'R$'}
+                                                decimalScale={2}
+                                                fixedDecimalScale={true}
+                                                renderText={value => value}
+                                            />
+                                        </td>
+                                        <td><Moment format="DD/MM/YYYY">{item.date_pickup}</Moment></td>
+                                        <td><Moment format="DD/MM/YYYY">{item.date_back}</Moment></td>
                                         <td>
                                             <a href={'/order/' + item.id} className="btn btn-primary ml-1"><span><FontAwesomeIcon icon={faEdit} size="sm" /></span></a>
                                             <button onClick={ () => showModalDelete(item.id)} className="btn btn-danger ml-1"><span><FontAwesomeIcon icon={faTrash} size="sm" /></span></button>
