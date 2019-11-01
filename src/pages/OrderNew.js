@@ -48,7 +48,6 @@ export default function OrderNew({ history }) {
         );
 
     const onSubmit = (data) => {
-        console.log(data);
         delete data.customer_name;
         const items = data.items.map( 
             item => {

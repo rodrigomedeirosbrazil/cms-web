@@ -19,12 +19,12 @@ const OrderForm = ({values, setValues, onSubmit, loading}) => {
         event.preventDefault();
         let _errors;
 
-        if (! values.customer_id) {
-            _errors = { customer_id: 'É obrigatório escolher o cliente' };
+        if (! values.customer) {
+            _errors = { customer: 'É obrigatório escolher o cliente' };
         }
 
-        if (! values.items || values.items.length < 1) {
-            _errors = { ..._errors, items: 'É obrigatório colocar pelo menos 1 produto' };
+        if (! values.order_items || values.order_items.length < 1) {
+            _errors = { ..._errors, order_items: 'É obrigatório colocar pelo menos 1 produto' };
         }
 
         setErrors(_errors);
@@ -35,43 +35,43 @@ const OrderForm = ({values, setValues, onSubmit, loading}) => {
 
     const addItem = ({ id, name, value, value_repo }) => {
         // TODO: verificar os dados antes!
-        const item = { id, name, value, value_repo, quantity: 1 }
-        let items;
-        if (! values.items) {
-            items = [item];
+        const item = { item: {id, name}, value, value_repo, quantity: 1 }
+        let order_items;
+        if (!values.order_items) {
+            order_items = [item];
         } else {
-            items = values.items.filter(
+            order_items = values.order_items.filter(
                 _item => { 
-                    return _item.id === item.id
+                    return _item.item.id === item.item.id
                 }
             );
-            if (items.length !== 1) {
-                items = [...values.items, item];
+            if (order_items.length !== 1) {
+                order_items = [...values.order_items, item];
             } else {
-                items = [...values.items];
+                order_items = [...values.order_items];
             }
         }
-        setValues({ ...values, items });
+        setValues({ ...values, order_items });
     };
 
     const deleteItem = item => {
-        const items = values.items.filter(
+        const order_items = values.order_items.filter(
             (_item) => {
-                if (_item.id !== item.id) return true;
+                if (_item.item.id !== item.item.id) return true;
                 return false;
             }
         );
-        setValues({...values, items});
+        setValues({...values, order_items});
     };
 
     const changeItem = item => {
-        const items = values.items.map( item => {return item});
-        setValues({...values, items});
+        const order_items = values.order_items.map( item => {return item});
+        setValues({ ...values, order_items});
     };
 
     const total = () => {
-        const _total = values.items
-            ? values.items.reduce((sum, i) => (
+        const _total = values.order_items
+            ? values.order_items.reduce((sum, i) => (
                 sum += i.quantity * i.value
             ), 0)
             : 0
@@ -99,17 +99,17 @@ const OrderForm = ({values, setValues, onSubmit, loading}) => {
                     Cliente
                 </div>
                 <div className="card-body">
-                    {!values.customer_id ? (
+                    {!values.customer ? (
                     <CustomerPicker 
-                        onChange={ (id, name) => setValues({ ...values, customer_id: id, customer_name: name }) } 
-                        error={errors && errors.customer_id}
+                        onChange={ (id, name) => setValues({ ...values, customer: { id, name } })}
+                        error={errors && errors.customer}
                     />
                     ) : ( 
                     <div className="row">
                         <div className="col-12">
-                            {values.customer_name}
+                            {values.customer.name}
                             <button
-                                onClick={() => setValues({ ...values, customer_id: undefined, customer_name: undefined })}
+                                onClick={() => setValues({ ...values, customer: undefined })}
                                 className="btn btn-danger ml-1"
                             >
                                 <span><FontAwesomeIcon icon={faTrash} size="sm" /></span>
@@ -165,9 +165,9 @@ const OrderForm = ({values, setValues, onSubmit, loading}) => {
                 <div className="card-body">
                     <ItemPicker
                         onChange={addItem}
-                        error={errors && errors.items}
+                        error={errors && errors.order_items}
                     />
-                    { values.items && values.items.length > 0 ? (
+                    {values.order_items && values.order_items.length > 0 ? (
                     <div className="table-responsive">
                         <table className="table table-striped">
                             <thead className="thead-dark">
@@ -181,9 +181,9 @@ const OrderForm = ({values, setValues, onSubmit, loading}) => {
                                 </tr>
                             </thead>
                             <tbody>
-                                { values.items.map(
+                                {values.order_items.map(
                                     item => (
-                                        <OrderItem key={item.id} item={item} deleteItem={deleteItem} changeItem={changeItem}/>
+                                        <OrderItem key={item.item.id} item={item} deleteItem={deleteItem} changeItem={changeItem}/>
                                     )
                                 )}
                             </tbody>
@@ -205,7 +205,7 @@ const OrderForm = ({values, setValues, onSubmit, loading}) => {
                         fixedDecimalScale={true}
                         renderText={value => value}
                     /><br />
-                    Peças: {values && values.items ? values.items.length: '0'}
+                    Peças: {values && values.order_items ? values.order_items.length: '0'}
                 </div>
             </div>
             <button type="submit" disabled={loading} className="btn btn-primary btn-block">

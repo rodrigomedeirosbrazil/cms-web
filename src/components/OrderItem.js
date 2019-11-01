@@ -8,7 +8,7 @@ const OrderItem = ({ item, deleteItem, changeItem }) => {
 
     return (
         <tr>
-            <td>{item.name}</td>
+            <td>{item.item.name}</td>
             <td>NA</td>
             <td>
                 <input
@@ -51,7 +51,13 @@ const OrderItem = ({ item, deleteItem, changeItem }) => {
             </td>
             <td>
                 <button
-                    onClick={() => deleteItem(item)}
+                    type="button"
+                    onClick={
+                        (e) => {
+                            e.preventDefault();
+                            deleteItem(item)
+                        }
+                    }
                     className="btn btn-danger ml-1"
                 >
                     <span><FontAwesomeIcon icon={faTrash} size="sm" /></span>

@@ -6,29 +6,57 @@ import { useParams } from "react-router";
 import Navbar from '../components/Navbar';
 import OrderForm from '../components/OrderForm';
 
-const ITEM = gql`
+const ORDER = gql`
     query ($id: Int!) {
         orders (where: { id: { _eq: $id } }) { 
             description, 
+            total, 
             date_pickup, 
             date_back, 
+            customer {
+                id, name
+            }
+            order_items {
+                item {
+                    id, name
+                }
+                value
+                value_repo
+                quantity
+            }
         }
     }
 `;
 
-const UPDATEITEM = gql`
+const UPDATE_ORDER = gql`
     mutation (
         $id: Int!
-        $name: String!, 
         $description: String, 
-        $value: numeric, 
-        $value_repo: numeric, 
-        $quantity: Int, 
-        $width: Int,  
-        $height: Int,  
-        $length: Int, 
-        $picture: String
+        $total: numeric!, 
+        $date_pickup: date, 
+        $date_back: date,
+        $order_items: [order_item_insert_input!]!,
+        $customer_id: Int!,
     ) {
+        delete_order_item(
+            where: {
+                order_id: {
+                    _eq: $id
+                }
+            }
+        )
+        {
+            affected_rows
+        }
+
+        insert_order_item(
+            objects: 
+              $order_items
+            
+        ) {
+          returning { item_id }
+        }
+
         update_orders(
             where: {
                 id: {
@@ -36,17 +64,14 @@ const UPDATEITEM = gql`
                 }
             }, 
             _set: {
-                name: $name, 
                 description: $description, 
-                value: $value, 
-                value_repo: $value_repo, 
-                quantity: $quantity,
-                width: $width,
-                height: $height,
-                length: $length,
-                picture: $picture
+                total: $total, 
+                date_pickup: $date_pickup, 
+                date_back: $date_back, 
+                customer_id: $customer_id,
             }
-        ) {
+        )
+        {
             affected_rows
         }
     }
@@ -59,7 +84,7 @@ export default function Orders ({ history }) {
 
     const {data, error, loading} = 
         useQuery(
-            ITEM, 
+            ORDER, 
             { 
                 variables: { id }, 
                 onCompleted: () => {
@@ -70,11 +95,11 @@ export default function Orders ({ history }) {
                 }
             }
         );
+        
     const [updateOrder, { loading: loadingUpdate, error: errorUpdate }] = 
         useMutation(
-            UPDATEITEM, 
+            UPDATE_ORDER, 
             { 
-                variables: { ...values, id },
                 onCompleted: () => {
                     setUpdated(true);
                 }
@@ -82,8 +107,24 @@ export default function Orders ({ history }) {
         );
 
     const onSubmit = (data) => {
-        setValues(data);
-        updateOrder();
+        let _data = { ...data };
+        delete _data.__typename;
+        delete _data.customer;
+        _data.customer_id = data.customer.id;
+        _data.id = id;
+        _data.order_items = data.order_items.map(
+            item => {
+                return {
+                    item_id: item.item.id,
+                    value: item.value,
+                    value_repo: item.value_repo,
+                    quantity: item.quantity,
+                    order_id: id
+                }
+            }
+        );
+
+        updateOrder({ variables: _data }); 
     }
 
     return (
