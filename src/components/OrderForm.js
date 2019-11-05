@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave, faTrash } from '@fortawesome/free-solid-svg-icons';
 import NumberFormat from 'react-number-format';
-import Moment from 'react-moment';
+import moment from 'moment';
 import 'moment/locale/pt-br';
 
 import CustomerPicker from '../components/CustomerPicker';
@@ -153,11 +153,13 @@ const OrderForm = ({values, setValues, onSubmit, loading}) => {
                             </div>
                         </div>
                     </div>
+                    {values.date_pickup && values.date_back && (
                     <div className="row">
                         <div className="col-12">
-                            Dias: <Moment from={values.date_pickup} locale="pt-br" >{values.date_back}</Moment>
+                                Dias: {moment(values.date_back).diff(moment(values.date_pickup), 'days') }
                         </div>
                     </div>
+                    )}
                 </div>
             </div>
             <div className="card mb-3">
