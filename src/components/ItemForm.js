@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave } from '@fortawesome/free-solid-svg-icons';
 
 import MoneyInput from '../components/MoneyInput';
+import PicturePicker from '../components/PicturePicker';
 
 const ItemForm = ({values, setValues, onSubmit, loading}) => {
     const [errors, setErrors] = useState({});
@@ -37,6 +38,15 @@ const ItemForm = ({values, setValues, onSubmit, loading}) => {
                     name="name"
                 />
                 <span className="text-danger">{errors.name && 'esse campo é obrigatório'}</span>
+            </div>
+            <div className="row mb-4">
+                <div className="col-12">
+                    <PicturePicker
+                        name="picture"
+                        src={values.picture || ""}
+                        onChange={handleChange}
+                    />
+                </div>
             </div>
             <div className="form-group">
                 <label>Descrição</label>
