@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons'
 import { ListGroup } from 'react-bootstrap';
-import { Link } from 'react-router-dom'
+import { LinkContainer as Link } from 'react-router-bootstrap'
 
 import logo from '../assets/medeirostec_logo.png'
 import { getAuth } from '../services/auth';

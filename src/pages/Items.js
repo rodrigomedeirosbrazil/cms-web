@@ -3,6 +3,7 @@ import { useQuery, useMutation } from '@apollo/react-hooks';
 import gql from 'graphql-tag';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit, faTrash, faPlusCircle } from '@fortawesome/free-solid-svg-icons'
+import { LinkContainer as Link } from 'react-router-bootstrap'
 
 import Navbar from '../components/Navbar';
 import Modal from '../components/Modal';
@@ -54,7 +55,7 @@ export default function Items ({ history }) {
         <div className="container-fluid">
             <div className="row" style={{ marginTop: 50 }}>
                 <div className="col-md-10 offset-md-1">
-                        <h2>Produtos <a href="/item/new" className="btn btn-primary btn-sm ml-1" ><span><FontAwesomeIcon icon={faPlusCircle} size="lg"/></span></a></h2>
+                        <h2>Produtos <Link to="/item/new" className="btn btn-primary btn-sm ml-1" ><span><FontAwesomeIcon icon={faPlusCircle} size="lg"/></span></Link></h2>
                     { loading ? (
                         <div className="spinner-border" role="status"></div>
                     ) : error ? (<h3>Houve um erro: {error.message}</h3>) : (
@@ -82,7 +83,7 @@ export default function Items ({ history }) {
                                         <td>{ item.description }</td>
                                         <td>{ item.quantity }</td>
                                         <td>
-                                            <a href={'/item/' + item.id} className="btn btn-primary ml-1"><span><FontAwesomeIcon icon={faEdit} size="sm" /></span></a>
+                                            <Link to={'/item/' + item.id} className="btn btn-primary ml-1"><span><FontAwesomeIcon icon={faEdit} size="sm" /></span></Link>
                                             <button onClick={ () => showModalDelete(item.id)} className="btn btn-danger ml-1"><span><FontAwesomeIcon icon={faTrash} size="sm" /></span></button>
                                         </td>
                                     </tr>

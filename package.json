@@ -20,6 +20,7 @@
     "react-easy-crop": "^1.16.1",
     "react-moment": "^0.9.6",
     "react-number-format": "^4.3.1",
+    "react-router-bootstrap": "^0.25.0",
     "react-router-dom": "^5.0.1",
     "react-scripts": "3.1.1",
     "react-text-mask": "^5.4.3",

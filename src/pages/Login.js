@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSignInAlt, faUserPlus } from '@fortawesome/free-solid-svg-icons'
+import { LinkContainer as Link } from 'react-router-bootstrap'
 
 import api from '../services/api';
 import { setAuth, deleteAuth } from '../services/auth';
@@ -75,7 +76,7 @@ export default function Login({ history }) {
                         {getError && (<span>Erro: {getError}</span>)}
                     </div>
                     <div className="p-2 text-center">
-                        Não tem conta? <a href="/signup" className="btn btn-outline-info btn-block"><span><FontAwesomeIcon icon={faUserPlus} size="lg" /></span> Cadastre-se</a>
+                        Não tem conta? <Link to="/signup"><button type="button" className="btn btn-outline-info btn-block"><span><FontAwesomeIcon icon={faUserPlus} size="lg" /></span> Cadastre-se</button></Link>
                     </div>
                 </form>
             </div>

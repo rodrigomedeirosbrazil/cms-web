@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit, faTrash, faPlusCircle } from '@fortawesome/free-solid-svg-icons'
 import NumberFormat from 'react-number-format';
 import Moment from 'react-moment';
+import { LinkContainer as Link } from 'react-router-bootstrap'
 
 import Navbar from '../components/Navbar';
 import Modal from '../components/Modal';
@@ -59,7 +60,7 @@ export default function Orders ({ history }) {
         <div className="container-fluid">
             <div className="row" style={{ marginTop: 50 }}>
                 <div className="col-md-10 offset-md-1">
-                        <h2>Pedidos <a href="/order/new" className="btn btn-primary btn-sm ml-1" ><span><FontAwesomeIcon icon={faPlusCircle} size="lg"/></span></a></h2>
+                        <h2>Pedidos <Link to="/order/new" className="btn btn-primary btn-sm ml-1" ><span><FontAwesomeIcon icon={faPlusCircle} size="lg"/></span></Link></h2>
                     { loading ? (
                         <div className="spinner-border" role="status"></div>
                     ) : error ? (<h3>Houve um erro: {error.message}</h3>) : (
@@ -96,7 +97,7 @@ export default function Orders ({ history }) {
                                         <td><Moment format="DD/MM/YYYY">{item.date_pickup}</Moment></td>
                                         <td><Moment format="DD/MM/YYYY">{item.date_back}</Moment></td>
                                         <td>
-                                            <a href={'/order/' + item.id} className="btn btn-primary ml-1"><span><FontAwesomeIcon icon={faEdit} size="sm" /></span></a>
+                                            <Link to={'/order/' + item.id} className="btn btn-primary ml-1"><span><FontAwesomeIcon icon={faEdit} size="sm" /></span></Link>
                                             <button onClick={ () => showModalDelete(item.id)} className="btn btn-danger ml-1"><span><FontAwesomeIcon icon={faTrash} size="sm" /></span></button>
                                         </td>
                                     </tr>
