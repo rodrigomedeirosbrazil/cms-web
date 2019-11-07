@@ -22,9 +22,9 @@ const PicturePicker = ({ name, src, onChange }) => {
             const croppedImage = await getCroppedImg(
                 imgSrc,
                 croppedAreaPixels,
-                rotation
+                rotation,
+                160, 160
             )
-            console.log('done', { croppedImage })
 
             const returnEvent = {
                 target: {
@@ -37,7 +37,7 @@ const PicturePicker = ({ name, src, onChange }) => {
         } catch (e) {
             console.error(e)
         }
-    }, [croppedAreaPixels, rotation])
+    }, [croppedAreaPixels, rotation, imgSrc, name, onChange])
 
     const onFileChange = async e => {
         if (e.target.files && e.target.files.length > 0) {
@@ -81,7 +81,7 @@ const PicturePicker = ({ name, src, onChange }) => {
                 ) : (
                 <div className="row mb-4">
                     <div className="col-12 text-center">
-                        <svg class="bd-placeholder-img rounded" width="160" height="160" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img">
+                        <svg className="bd-placeholder-img rounded" width="160" height="160" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img">
                             <rect width="100%" height="100%" fill="#868e96" />
                             <text x="25%" y="50%" fill="#dee2e6" dy=".3em">SEM FOTO</text>
                         </svg>
@@ -107,6 +107,7 @@ const PicturePicker = ({ name, src, onChange }) => {
                             crop={crop}
                             rotation={rotation}
                             zoom={zoom}
+                            minZoom={0.1}
                             aspect={1 / 1}
                             onCropChange={setCrop}
                             onRotationChange={setRotation}
@@ -139,7 +140,7 @@ const PicturePicker = ({ name, src, onChange }) => {
                         <button type="button" className="btn btn-primary mr-2" onClick={showCroppedImage}>
                             OK
                         </button>
-                        <button type="button" className="btn btn-primary mr-2">
+                        <button type="button" className="btn btn-primary mr-2" onClick={() => setEditing(false)}>
                             Cancelar
                         </button>
                     </div>
