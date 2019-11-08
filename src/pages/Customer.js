@@ -7,7 +7,7 @@ import Navbar from '../components/Navbar';
 import CustomerForm from '../components/CustomerForm';
 
 const CUSTOMER = gql`
-    query ($id: Int!) {
+    query ($id: String!) {
         customers (where: { id: { _eq: $id } }) { 
             id, name, email, address, city, state, zip
         }
@@ -15,7 +15,7 @@ const CUSTOMER = gql`
 `;
 
 const UPDATECUSTOMER = gql`
-    mutation ($id: Int!, $name: String!, $email: String, $address: String, $city: String, $state: String, $zip: String) {
+    mutation ($id: String!, $name: String!, $email: String, $address: String, $city: String, $state: String, $zip: String) {
         update_customers(where: {id: {_eq: $id}}, _set: {name: $name, email: $email, address: $address, city: $city, state: $state, zip: $zip}) {
             affected_rows
         }

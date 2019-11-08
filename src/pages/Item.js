@@ -7,7 +7,7 @@ import Navbar from '../components/Navbar';
 import ItemForm from '../components/ItemForm';
 
 const ITEM = gql`
-    query ($id: Int!) {
+    query ($id: String!) {
         items (where: { id: { _eq: $id } }) { 
             name, 
             description, 
@@ -24,7 +24,7 @@ const ITEM = gql`
 
 const UPDATEITEM = gql`
     mutation (
-        $id: Int!
+        $id: String!
         $name: String!, 
         $description: String, 
         $value: numeric, 

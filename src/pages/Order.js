@@ -7,7 +7,7 @@ import Navbar from '../components/Navbar';
 import OrderForm from '../components/OrderForm';
 
 const ORDER = gql`
-    query ($id: Int!) {
+    query ($id: String!) {
         orders (where: { id: { _eq: $id } }) { 
             description, 
             total, 
@@ -30,13 +30,13 @@ const ORDER = gql`
 
 const UPDATE_ORDER = gql`
     mutation (
-        $id: Int!
+        $id: String!
         $description: String, 
         $total: numeric!, 
         $date_pickup: date, 
         $date_back: date,
         $order_items: [order_item_insert_input!]!,
-        $customer_id: Int!,
+        $customer_id: String!,
     ) {
         delete_order_item(
             where: {

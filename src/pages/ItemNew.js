@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useMutation } from '@apollo/react-hooks';
 import gql from 'graphql-tag';
+import uuid from 'uuid/v4';
 
 import Navbar from '../components/Navbar';
 import ItemForm from '../components/ItemForm';
@@ -8,6 +9,7 @@ import Modal from '../components/Modal';
 
 const NEWITEM = gql`
     mutation (
+        $id: String!, 
         $name: String!, 
         $description: String, 
         $value: numeric, 
@@ -20,6 +22,7 @@ const NEWITEM = gql`
     ) {
         insert_items(
             objects: {
+                id: $id, 
                 name: $name, 
                 description: $description, 
                 value: $value, 
@@ -53,6 +56,7 @@ export default function ItemNew({ history }) {
         );
 
     const onSubmit = (data) => {
+        data.id = uuid();
         setValues(data);
         newItem();
     }

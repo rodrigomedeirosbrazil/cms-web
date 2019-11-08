@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useMutation } from '@apollo/react-hooks';
 import gql from 'graphql-tag';
+import uuid from 'uuid/v4';
 
 import Navbar from '../components/Navbar';
 import OrderForm from '../components/OrderForm';
@@ -8,15 +9,17 @@ import Modal from '../components/Modal';
 
 const NEWORDER = gql`
     mutation (
+        $id: String!, 
         $description: String, 
         $total: numeric!, 
         $date_pickup: date, 
         $date_back: date,
         $order_items: [order_item_insert_input!]!,
-        $customer_id: Int!,
+        $customer_id: String!,
     ) {
         insert_orders(
             objects: {
+                id: $id, 
                 description: $description, 
                 total: $total, 
                 date_pickup: $date_pickup,
@@ -49,6 +52,7 @@ export default function OrderNew({ history }) {
 
     const onSubmit = (data) => {
         let _data = { ...data };
+        _data.id = uuid();
         delete _data.__typename;
         delete _data.customer;
         _data.customer_id = data.customer.id;
