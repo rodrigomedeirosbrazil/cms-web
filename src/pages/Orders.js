@@ -22,7 +22,7 @@ const ORDERS = gql`
 `;
 
 const DELORDER = gql`
-    mutation ($id: String!) {
+    mutation ($id: uuid!) {
         update_orders(where: {id: {_eq: $id}}, _set: {active: false}) {
             affected_rows
         }

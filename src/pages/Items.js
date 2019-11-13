@@ -4,20 +4,21 @@ import gql from 'graphql-tag';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit, faTrash, faPlusCircle } from '@fortawesome/free-solid-svg-icons'
 import { LinkContainer as Link } from 'react-router-bootstrap'
+import NumberFormat from 'react-number-format';
 
 import Navbar from '../components/Navbar';
 import Modal from '../components/Modal';
 
 const ITEMS = gql`
     query {
-        items (where: {active: {_eq: true}}, order_by: {name: asc}) { 
-            id, name, description, quantity, picture 
+        items (where: {active: {_eq: true}}, order_by: {idn: asc}) { 
+            id, idn, name, description, quantity, value, picture 
         }
     }
 `;
 
 const DELITEM = gql`
-    mutation ($id: String!) {
+    mutation ($id: uuid!) {
         update_items(where: {id: {_eq: $id}}, _set: {active: false}) {
             affected_rows
         }
@@ -67,6 +68,7 @@ export default function Items ({ history }) {
                                     <th>Nome</th>
                                     <th>Descrição</th>
                                     <th>Quantidade</th>
+                                    <th>Valor</th>
                                     <th>Ações</th>
                                 </tr>
                             </thead>
@@ -79,9 +81,21 @@ export default function Items ({ history }) {
                                             <img alt="" src={item.picture} className="img-thumbnail" width="100" />
                                         </td>
                                         ): (<td>SEM FOTO</td>)}
-                                        <td>{ item.name }</td>
+                                        <td>{item.name} #{item.idn}</td>
                                         <td>{ item.description }</td>
-                                        <td>{ item.quantity }</td>
+                                        <td>{item.quantity}</td>
+                                        <td>
+                                            <NumberFormat
+                                                value={item.value}
+                                                displayType={'text'}
+                                                thousandSeparator={'.'}
+                                                decimalSeparator={','}
+                                                prefix={'R$'}
+                                                decimalScale={2}
+                                                fixedDecimalScale={true}
+                                                renderText={value => value}
+                                            />
+                                        </td>
                                         <td>
                                             <Link to={'/item/' + item.id} className="btn btn-primary ml-1"><span><FontAwesomeIcon icon={faEdit} size="sm" /></span></Link>
                                             <button onClick={ () => showModalDelete(item.id)} className="btn btn-danger ml-1"><span><FontAwesomeIcon icon={faTrash} size="sm" /></span></button>

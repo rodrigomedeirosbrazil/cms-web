@@ -7,7 +7,7 @@ import Navbar from '../components/Navbar';
 import OrderForm from '../components/OrderForm';
 
 const ORDER = gql`
-    query ($id: String!) {
+    query ($id: uuid!) {
         orders (where: { id: { _eq: $id } }) { 
             description, 
             total, 
@@ -30,13 +30,13 @@ const ORDER = gql`
 
 const UPDATE_ORDER = gql`
     mutation (
-        $id: String!
+        $id: uuid!
         $description: String, 
         $total: numeric!, 
         $date_pickup: date, 
         $date_back: date,
         $order_items: [order_item_insert_input!]!,
-        $customer_id: String!,
+        $customer_id: uuid!,
     ) {
         delete_order_item(
             where: {
@@ -133,7 +133,7 @@ export default function Orders ({ history }) {
         <div className="container-fluid">
             <div className="row" style={{ marginTop: 50 }}>
                 <div className="col-md-6 offset-md-3">
-                    <h2>Produto: </h2>
+                    <h2>Pedido: </h2>
                     { updated && (
                     <div className="alert alert-success" role="alert">
                         Dados foram gravados com sucesso!

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useMutation } from '@apollo/react-hooks';
+import { useMutation, useLazyQuery } from '@apollo/react-hooks';
 import gql from 'graphql-tag';
 import uuid from 'uuid/v4';
 
@@ -7,22 +7,34 @@ import Navbar from '../components/Navbar';
 import ItemForm from '../components/ItemForm';
 import Modal from '../components/Modal';
 
+import { getAuth } from '../services/auth';
+
+const ITEM = gql`
+    query ($user_id: uuid!) {
+        items (order_by: {idn: desc}, limit: 1, where: { user_id: { _eq: $user_id }, active: {_eq: true} }) { 
+            idn
+        }
+    }
+`;
+
 const NEWITEM = gql`
     mutation (
-        $id: String!, 
+        $id: uuid!, 
+        $idn: Int!, 
         $name: String!, 
         $description: String, 
         $value: numeric, 
         $value_repo: numeric, 
         $quantity: Int, 
-        $width: Int,  
-        $height: Int,  
-        $length: Int, 
+        $width: numeric,  
+        $height: numeric,  
+        $length: numeric, 
         $picture: String
     ) {
         insert_items(
             objects: {
                 id: $id, 
+                idn: $idn, 
                 name: $name, 
                 description: $description, 
                 value: $value, 
@@ -47,7 +59,6 @@ export default function ItemNew({ history }) {
         useMutation(
             NEWITEM, 
             { 
-                variables: { ...values },
                 onCompleted: () => {
                     setShowModal(true);
                     setValues({});
@@ -55,10 +66,21 @@ export default function ItemNew({ history }) {
             }
         );
 
+    const [getLastIdn,  {loadingItem}] =
+        useLazyQuery(
+            ITEM,
+            {
+                onCompleted: (data) => {
+                    const idn = data.items.length > 0 ? data.items[0].idn+1 : 1;
+                    const _data = { ...values, id: uuid(), idn };
+                    newItem({ variables: { ..._data } });
+                }
+            }
+        );
+
     const onSubmit = (data) => {
-        data.id = uuid();
-        setValues(data);
-        newItem();
+        const auth = getAuth();
+        getLastIdn({ variables: { user_id: `${auth.user.id}` } });
     }
 
     return (
@@ -83,7 +105,7 @@ export default function ItemNew({ history }) {
                             </div>
                         )}
                         <div>
-                            <ItemForm values={values} setValues={setValues} onSubmit={onSubmit} loading={loading} />
+                            <ItemForm values={values} setValues={setValues} onSubmit={onSubmit} loading={loading || loadingItem} />
                         </div>
                     </div>
                 </div>

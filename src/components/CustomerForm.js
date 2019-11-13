@@ -70,8 +70,8 @@ const CustomerForm = ({values, setValues, onSubmit, loading}) => {
                 <span className="text-danger">{errors.email && errors.email.message}</span>
             </div>
             <div className="input-group mb-3">
-                <div class="input-group-prepend">
-                    <label class="input-group-text">CEP</label>
+                <div className="input-group-prepend">
+                    <label className="input-group-text">CEP</label>
                 </div>
                 <MaskedInput 
                     mask={[/\d/, /\d/, '.', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/]}
@@ -81,7 +81,7 @@ const CustomerForm = ({values, setValues, onSubmit, loading}) => {
                     placeholder="Digite o CEP e aperte o botão para auto-completar os outros campos."
                     name="zip"
                 />
-                <div class="input-group-append">
+                <div className="input-group-append">
                     <button type="button" onClick={searchCep} disabled={loadingCep} className="btn btn-primary">
                         {loadingCep ? (<div className="spinner-border spinner-border-sm" role="status"></div>)
                             : (<span><FontAwesomeIcon icon={faSearch} size="lg" /></span>)}

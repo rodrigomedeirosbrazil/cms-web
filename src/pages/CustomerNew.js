@@ -8,7 +8,7 @@ import CustomerForm from '../components/CustomerForm';
 import Modal from '../components/Modal';
 
 const NEWCUSTOMER = gql`
-    mutation ($id: String!, $name: String!, $email: String, $address: String, $city: String, $state: String, $zip: String) {
+    mutation ($id: uuid!, $name: String!, $email: String, $address: String, $city: String, $state: String, $zip: String) {
         insert_customers(objects: {id: $id, name: $name, email: $email, address: $address, city: $city, state: $state, zip: $zip}) {
           returning { id }
         }
@@ -23,7 +23,6 @@ export default function CustomerNew({ history }) {
         useMutation(
             NEWCUSTOMER, 
             { 
-                variables: { ...values },
                 onCompleted: () => {
                     setShowModal(true);
                     setValues({});
@@ -34,7 +33,7 @@ export default function CustomerNew({ history }) {
     const onSubmit = (data) => {
         data.id = uuid();
         setValues(data);
-        newCustomer();
+        newCustomer({ variables: data }); 
     }
 
     return (

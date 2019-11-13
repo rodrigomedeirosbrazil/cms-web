@@ -9,13 +9,13 @@ import Modal from '../components/Modal';
 
 const NEWORDER = gql`
     mutation (
-        $id: String!, 
+        $id: uuid!, 
         $description: String, 
         $total: numeric!, 
         $date_pickup: date, 
         $date_back: date,
         $order_items: [order_item_insert_input!]!,
-        $customer_id: String!,
+        $customer_id: uuid!,
     ) {
         insert_orders(
             objects: {

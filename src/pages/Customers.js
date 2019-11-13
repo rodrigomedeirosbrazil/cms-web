@@ -17,7 +17,7 @@ const CUSTOMERS = gql`
 `;
 
 const DELCUSTOMER = gql`
-    mutation ($id: String!) {
+    mutation ($id: uuid!) {
         update_customers(where: {id: {_eq: $id}}, _set: {active: false}) {
             affected_rows
         }

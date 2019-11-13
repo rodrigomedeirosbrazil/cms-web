@@ -7,7 +7,7 @@ import Navbar from '../components/Navbar';
 import ItemForm from '../components/ItemForm';
 
 const ITEM = gql`
-    query ($id: String!) {
+    query ($id: uuid!) {
         items (where: { id: { _eq: $id } }) { 
             name, 
             description, 
@@ -17,22 +17,24 @@ const ITEM = gql`
             width,
             height,
             length,
-            picture
+            picture,
+            idn
         }
     }
 `;
 
 const UPDATEITEM = gql`
     mutation (
-        $id: String!
+        $id: uuid!,
+        $idn: Int!,
         $name: String!, 
         $description: String, 
         $value: numeric, 
         $value_repo: numeric, 
         $quantity: Int, 
-        $width: Int,  
-        $height: Int,  
-        $length: Int, 
+        $width: numeric,  
+        $height: numeric,  
+        $length: numeric, 
         $picture: String
     ) {
         update_items(
@@ -43,6 +45,7 @@ const UPDATEITEM = gql`
             }, 
             _set: {
                 name: $name, 
+                idn: $idn, 
                 description: $description, 
                 value: $value, 
                 value_repo: $value_repo, 
@@ -98,7 +101,7 @@ export default function Items ({ history }) {
         <div className="container-fluid">
             <div className="row" style={{ marginTop: 50 }}>
                 <div className="col-md-6 offset-md-3">
-                    <h2>Produto: </h2>
+                    <h2>Produto: #{values.idn}</h2>
                     { updated && (
                     <div className="alert alert-success" role="alert">
                         Dados foram gravados com sucesso!
