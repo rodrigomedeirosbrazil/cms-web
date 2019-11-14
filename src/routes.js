@@ -4,6 +4,8 @@ import { BrowserRouter, Switch, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import RecoveryPassword from './pages/RecoveryPassword';
+import ChangePassword from './pages/ChangePassword';
 import Main from './pages/Main';
 import Customers from './pages/Customers';
 import CustomerNew from './pages/CustomerNew';
@@ -21,7 +23,9 @@ export default function Routes () {
             <Switch>
                 <Route name="home" path="/" exact component={Home}/>
                 <Route name="login" path="/login" exact component={Login}/>
-                <Route name="signup" path="/signup" exact component={Signup}/>
+                <Route name="signup" path="/signup" exact component={Signup} />
+                <Route name="recovery_password" path="/recovery_password" exact component={RecoveryPassword} />
+                <Route name="change_password" path="/change_password" exact component={ChangePassword} />
                 <Route name="main" path="/main" exact component={Main}/>
                 <Route name="customers" path="/customers" exact component={Customers}/>
                 <Route name="customerNew" path="/customer/new" exact component={CustomerNew} />

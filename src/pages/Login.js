@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faSignInAlt, faUserPlus } from '@fortawesome/free-solid-svg-icons'
+import { faSignInAlt, faUserPlus, faLock } from '@fortawesome/free-solid-svg-icons'
 import { LinkContainer as Link } from 'react-router-bootstrap'
 
 import api from '../services/api';
@@ -74,6 +74,9 @@ export default function Login({ history }) {
                     </button>
                     <div className="p-2 text-center text-danger">
                         {getError && (<span>Erro: {getError}</span>)}
+                    </div>
+                    <div className="p-2 text-center">
+                        <Link to="/recovery_password"><button type="button" className="btn btn-outline-info btn-block"><span><FontAwesomeIcon icon={faLock} size="lg" /></span> Esqueci a senha</button></Link>
                     </div>
                     <div className="p-2 text-center">
                         Não tem conta? <Link to="/signup"><button type="button" className="btn btn-outline-info btn-block"><span><FontAwesomeIcon icon={faUserPlus} size="lg" /></span> Cadastre-se</button></Link>
