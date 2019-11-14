@@ -29,9 +29,9 @@ export default function ChangePassword({ history }) {
                     }
                 }
             );
-            showModal(true);
+            setShowModal(true);
         } catch (error) {
-            console.log('erro', error.response);
+            console.log('erro', error);
             if (error.response && error.response.data) {
                 setError(error.response.data.message);
             } else {

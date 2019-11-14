@@ -17,7 +17,8 @@ export default function RecoveryPassword({ history }) {
         setLoading(true);
         setError('');
         try {
-            const response = await api.post('/auth/recoveryPassword', { email });
+            await api.post('/auth/recoveryPassword', { email });
+            setShowModal(true);
         } catch (error) {
             console.log('erro', error.response);
             if (error.response && error.response.data) {
@@ -27,7 +28,6 @@ export default function RecoveryPassword({ history }) {
             }
         }
         setLoading(false);
-        setShowModal(true);
     }
 
     return (
