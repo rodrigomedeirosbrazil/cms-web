@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { useQuery, useMutation } from '@apollo/react-hooks';
+import React, { useState, useEffect } from 'react';
+import { useParams } from "react-router";
+import { useLazyQuery, useMutation } from '@apollo/react-hooks';
 import gql from 'graphql-tag';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit, faTrash, faPlusCircle } from '@fortawesome/free-solid-svg-icons'
@@ -10,8 +11,8 @@ import Navbar from '../components/Navbar';
 import Modal from '../components/Modal';
 
 const ITEMS = gql`
-    query {
-        items (where: {active: {_eq: true}}, order_by: {idn: asc}) { 
+    query ($limit: Int!, $offset: Int!) {
+        items (where: {active: {_eq: true}}, order_by: {idn: asc}, limit: $limit, offset: $offset) { 
             id, idn, name, description, quantity, value, picture 
         }
     }
@@ -26,10 +27,23 @@ const DELITEM = gql`
 `;
 
 export default function Items ({ history }) {
-    const {data, error, loading} = useQuery(ITEMS);
+    let { page } = useParams();
+    const limit = 15;
+    const [getPage, setPage] = useState(1);
+    const [getItems, { data, loading }] = useLazyQuery(ITEMS);
     const [showModal, setShowModal] = useState(false);
     const [value, setValue] = useState(false);
     
+    useEffect(
+        () => {
+            if(page) {
+                setPage(page);
+            }
+            getItems({ variables: { limit: limit, offset: getPage-1 } });
+        },
+        [page, getItems, getPage]
+    )
+
     const [delItem] =
         useMutation(
             DELITEM,
@@ -59,7 +73,7 @@ export default function Items ({ history }) {
                         <h2>Produtos <Link to="/item/new" className="btn btn-primary btn-sm ml-1" ><span><FontAwesomeIcon icon={faPlusCircle} size="lg"/></span></Link></h2>
                     { loading ? (
                         <div className="spinner-border" role="status"></div>
-                    ) : error ? (<h3>Houve um erro: {error.message}</h3>) : (
+                    ) : (
                     <div className="table-responsive">
                         <table className="table table-striped">
                             <thead className="thead-dark">
@@ -104,7 +118,7 @@ export default function Items ({ history }) {
                                 )
                             ) : (
                             <tr>
-                                <td colSpan="5" className="text-center"><h1>VAZIO</h1></td>
+                                <td colSpan="6" className="text-center"><h1>VAZIO</h1></td>
                             </tr>
                             )}
                             </tbody>

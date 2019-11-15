@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { useQuery, useMutation } from '@apollo/react-hooks';
+import React, { useState, useEffect } from 'react';
+import { useParams } from "react-router";
+import { useLazyQuery, useMutation } from '@apollo/react-hooks';
 import gql from 'graphql-tag';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit, faTrash, faPlusCircle } from '@fortawesome/free-solid-svg-icons'
@@ -11,8 +12,8 @@ import Navbar from '../components/Navbar';
 import Modal from '../components/Modal';
 
 const ORDERS = gql`
-    query {
-        orders (where: {active: {_eq: true}}, order_by: {date_pickup: asc}) { 
+    query ($limit: Int!, $offset: Int!) {
+        orders (where: {active: {_eq: true}}, order_by: {date_pickup: asc}, limit: $limit, offset: $offset) { 
             id, description, total, date_pickup, date_back
             customer {
                 name
@@ -30,10 +31,23 @@ const DELORDER = gql`
 `;
 
 export default function Orders ({ history }) {
-    const {data, error, loading} = useQuery(ORDERS);
+    let { page } = useParams();
+    const limit = 15;
+    const [getPage, setPage] = useState(1);
+    const [getOrders, { data, loading }] = useLazyQuery(ORDERS);
     const [showModal, setShowModal] = useState(false);
     const [value, setValue] = useState(false);
     
+    useEffect(
+        () => {
+            if (page) {
+                setPage(page);
+            }
+            getOrders({ variables: { limit: limit, offset: getPage - 1 } });
+        },
+        [page, getOrders, getPage]
+    )
+
     const [delOrder] =
         useMutation(
             DELORDER,
@@ -63,7 +77,7 @@ export default function Orders ({ history }) {
                         <h2>Pedidos <Link to="/order/new" className="btn btn-primary btn-sm ml-1" ><span><FontAwesomeIcon icon={faPlusCircle} size="lg"/></span></Link></h2>
                     { loading ? (
                         <div className="spinner-border" role="status"></div>
-                    ) : error ? (<h3>Houve um erro: {error.message}</h3>) : (
+                    ) : (
                     <div className="table-responsive">
                         <table className="table table-striped">
                             <thead className="thead-dark">
