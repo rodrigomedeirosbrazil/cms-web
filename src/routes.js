@@ -1,5 +1,7 @@
 import React from 'react';
-import { BrowserRouter, Switch, Route } from 'react-router-dom';
+import { BrowserRouter, Switch, Route, Redirect } from 'react-router-dom';
+
+import { getAuth } from './services/auth';
 
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -17,6 +19,25 @@ import Orders from './pages/Orders';
 import OrderNew from './pages/OrderNew';
 import Order from './pages/Order';
 
+const isAuthenticated = () => {
+    const auth = getAuth();
+    if (auth) return true;
+    return false;
+}
+
+const PrivateRoute = ({ component: Component, ...rest }) => (
+    <Route 
+        { ...rest }
+        render={props =>
+            isAuthenticated() ? (
+                <Component { ...props } />
+            ) : (
+                <Redirect to={{ pathname: "/", state: { from: props.location } }} />
+            )
+        }
+    />
+)
+
 export default function Routes () {
     return (
         <BrowserRouter>
@@ -25,17 +46,17 @@ export default function Routes () {
                 <Route name="login" path="/login" exact component={Login}/>
                 <Route name="signup" path="/signup" exact component={Signup} />
                 <Route name="recovery_password" path="/recovery_password" exact component={RecoveryPassword} />
-                <Route name="change_password" path="/change_password" exact component={ChangePassword} />
-                <Route name="main" path="/main" exact component={Main}/>
-                <Route name="customers" path="/customers" exact component={Customers}/>
-                <Route name="customerNew" path="/customer/new" exact component={CustomerNew} />
-                <Route name="customer" path="/customer/:id" component={Customer}/>
-                <Route name="items" path="/items" exact component={Items} />
-                <Route name="itemNew" path="/item/new" exact component={ItemNew} />
-                <Route name="item" path="/item/:id" component={Item} />
-                <Route name="orders" path="/orders" exact component={Orders} />
-                <Route name="orderNew" path="/order/new" exact component={OrderNew} />
-                <Route name="order" path="/order/:id" component={Order} />
+                <PrivateRoute name="change_password" path="/change_password" exact component={ChangePassword} />
+                <PrivateRoute name="main" path="/main" exact component={Main}/>
+                <PrivateRoute name="customers" path="/customers" exact component={Customers}/>
+                <PrivateRoute name="customerNew" path="/customer/new" exact component={CustomerNew} />
+                <PrivateRoute name="customer" path="/customer/:id" component={Customer}/>
+                <PrivateRoute name="items" path="/items" exact component={Items} />
+                <PrivateRoute name="itemNew" path="/item/new" exact component={ItemNew} />
+                <PrivateRoute name="item" path="/item/:id" component={Item} />
+                <PrivateRoute name="orders" path="/orders" exact component={Orders} />
+                <PrivateRoute name="orderNew" path="/order/new" exact component={OrderNew} />
+                <PrivateRoute name="order" path="/order/:id" component={Order} />
             </Switch>
         </BrowserRouter>
     )
