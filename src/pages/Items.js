@@ -9,9 +9,15 @@ import NumberFormat from 'react-number-format';
 
 import Navbar from '../components/Navbar';
 import Modal from '../components/Modal';
+import Pagination from '../components/Pagination';
 
 const ITEMS = gql`
     query ($limit: Int!, $offset: Int!) {
+        items_aggregate (where: {active: {_eq: true}}) {
+            aggregate {
+                totalCount: count
+            }
+        }
         items (where: {active: {_eq: true}}, order_by: {idn: asc}, limit: $limit, offset: $offset) { 
             id, idn, name, description, quantity, value, picture 
         }
@@ -27,21 +33,26 @@ const DELITEM = gql`
 `;
 
 export default function Items ({ history }) {
-    let { page } = useParams();
+    const { page } = useParams();
     const limit = 15;
-    const [getPage, setPage] = useState(1);
     const [getItems, { data, loading }] = useLazyQuery(ITEMS);
     const [showModal, setShowModal] = useState(false);
     const [value, setValue] = useState(false);
+    const [getPage, setPage] = useState(1);
     
     useEffect(
         () => {
-            if(page) {
-                setPage(page);
-            }
-            getItems({ variables: { limit: limit, offset: getPage-1 } });
+            getItems({ variables: { limit: limit, offset: (getPage -1 ) * limit } });
         },
-        [page, getItems, getPage]
+        [getPage, getItems]
+    )
+
+    useEffect(
+        () => {
+            const _page = page ? parseInt(page) : 1;
+            setPage(_page);
+        },
+        [page]
     )
 
     const [delItem] =
@@ -74,56 +85,64 @@ export default function Items ({ history }) {
                     { loading ? (
                         <div className="spinner-border" role="status"></div>
                     ) : (
-                    <div className="table-responsive">
-                        <table className="table table-striped">
-                            <thead className="thead-dark">
-                                <tr>
-                                    <th>Foto</th>
-                                    <th>Nome</th>
-                                    <th>Descrição</th>
-                                    <th>Quantidade</th>
-                                    <th>Valor</th>
-                                    <th>Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            {data && data.items && data.items.length > 0 ? data.items.map( 
-                                item => (
-                                    <tr key={item.id}>
-                                        {item.picture ? (
-                                        <td>
-                                            <img alt="" src={item.picture} className="img-thumbnail" width="100" />
-                                        </td>
-                                        ): (<td>SEM FOTO</td>)}
-                                        <td>{item.name} #{item.idn}</td>
-                                        <td>{ item.description }</td>
-                                        <td>{item.quantity}</td>
-                                        <td>
-                                            <NumberFormat
-                                                value={item.value}
-                                                displayType={'text'}
-                                                thousandSeparator={'.'}
-                                                decimalSeparator={','}
-                                                prefix={'R$'}
-                                                decimalScale={2}
-                                                fixedDecimalScale={true}
-                                                renderText={value => value}
-                                            />
-                                        </td>
-                                        <td>
-                                            <Link to={'/item/' + item.id} className="btn btn-primary ml-1"><span><FontAwesomeIcon icon={faEdit} size="sm" /></span></Link>
-                                            <button onClick={ () => showModalDelete(item.id)} className="btn btn-danger ml-1"><span><FontAwesomeIcon icon={faTrash} size="sm" /></span></button>
-                                        </td>
+                    <>
+                        {data && data.items_aggregate && data.items_aggregate.aggregate && data.items_aggregate.aggregate.totalCount > 0 && (
+                            <Pagination totalCount={data.items_aggregate.aggregate.totalCount} page={getPage} limit={limit} history={history} />
+                        )}
+                        <div className="table-responsive">
+                            <table className="table table-striped">
+                                <thead className="thead-dark">
+                                    <tr>
+                                        <th>Foto</th>
+                                        <th>Nome</th>
+                                        <th>Descrição</th>
+                                        <th>Quantidade</th>
+                                        <th>Valor</th>
+                                        <th>Ações</th>
                                     </tr>
-                                )
-                            ) : (
-                            <tr>
-                                <td colSpan="6" className="text-center"><h1>VAZIO</h1></td>
-                            </tr>
-                            )}
-                            </tbody>
-                        </table>
-                    </div>
+                                </thead>
+                                <tbody>
+                                {data && data.items && data.items.length > 0 ? data.items.map( 
+                                    item => (
+                                        <tr key={item.id}>
+                                            {item.picture ? (
+                                            <td>
+                                                <img alt="" src={item.picture} className="img-thumbnail" width="100" />
+                                            </td>
+                                            ): (<td>SEM FOTO</td>)}
+                                            <td>{item.name} #{item.idn}</td>
+                                            <td>{ item.description }</td>
+                                            <td>{item.quantity}</td>
+                                            <td>
+                                                <NumberFormat
+                                                    value={item.value}
+                                                    displayType={'text'}
+                                                    thousandSeparator={'.'}
+                                                    decimalSeparator={','}
+                                                    prefix={'R$'}
+                                                    decimalScale={2}
+                                                    fixedDecimalScale={true}
+                                                    renderText={value => value}
+                                                />
+                                            </td>
+                                            <td>
+                                                <Link to={'/item/' + item.id} className="btn btn-primary ml-1"><span><FontAwesomeIcon icon={faEdit} size="sm" /></span></Link>
+                                                <button onClick={ () => showModalDelete(item.id)} className="btn btn-danger ml-1"><span><FontAwesomeIcon icon={faTrash} size="sm" /></span></button>
+                                            </td>
+                                        </tr>
+                                    )
+                                ) : (
+                                <tr>
+                                    <td colSpan="6" className="text-center"><h1>VAZIO</h1></td>
+                                </tr>
+                                )}
+                                </tbody>
+                            </table>
+                        </div>
+                        {data && data.items_aggregate && data.items_aggregate.aggregate && data.items_aggregate.aggregate.totalCount > 0 && (
+                            <Pagination totalCount={data.items_aggregate.aggregate.totalCount} page={getPage} limit={limit} history={history}/>
+                        )}
+                    </>
                     )}
                 </div>
             </div>
