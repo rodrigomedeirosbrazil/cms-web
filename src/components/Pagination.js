@@ -12,12 +12,12 @@ const Pagination = ({ page, history, totalCount, limit }) => {
         [page]
     )
 
-    const totalgetPages = () => {
+    const totalPages = () => {
         return Math.ceil(totalCount/limit);
     }
 
     const hasNext = () => {
-        return getPage + 1 <= totalgetPages()
+        return getPage + 1 <= totalPages()
     }
 
     const hasPrev = () => {
@@ -32,7 +32,8 @@ const Pagination = ({ page, history, totalCount, limit }) => {
         return path;
     }
 
-    return (
+    
+    return totalPages() > 1 ? (
         <BSPagination>
             {hasPrev() && (
                 <>
@@ -80,19 +81,19 @@ const Pagination = ({ page, history, totalCount, limit }) => {
                     }
                 />
             )}
-            {getPage < totalgetPages() && (
+            {getPage < totalPages() && (
                 <BSPagination.Last 
                     onClick={
                         () => {
-                            history.push(getLocation() + totalgetPages());
+                            history.push(getLocation() + totalPages());
                         }
                     }
-                    key={totalgetPages()}
+                    key={totalPages()}
                 />
             )}
             
         </BSPagination>
-    );
+    ) : (<></>);
 }
 
 export default Pagination;

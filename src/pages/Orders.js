@@ -10,9 +10,15 @@ import { LinkContainer as Link } from 'react-router-bootstrap'
 
 import Navbar from '../components/Navbar';
 import Modal from '../components/Modal';
+import Pagination from '../components/Pagination';
 
 const ORDERS = gql`
     query ($limit: Int!, $offset: Int!) {
+        orders_aggregate (where: {active: {_eq: true}}) {
+            aggregate {
+                totalCount: count
+            }
+        }
         orders (where: {active: {_eq: true}}, order_by: {date_pickup: asc}, limit: $limit, offset: $offset) { 
             id, description, total, date_pickup, date_back
             customer {
@@ -31,21 +37,26 @@ const DELORDER = gql`
 `;
 
 export default function Orders ({ history }) {
-    let { page } = useParams();
-    const limit = 15;
+    const { page } = useParams();
     const [getPage, setPage] = useState(1);
+    const limit = 15;
     const [getOrders, { data, loading }] = useLazyQuery(ORDERS);
     const [showModal, setShowModal] = useState(false);
     const [value, setValue] = useState(false);
     
     useEffect(
         () => {
-            if (page) {
-                setPage(page);
-            }
-            getOrders({ variables: { limit: limit, offset: getPage - 1 } });
+            getOrders({ variables: { limit: limit, offset: (getPage - 1) * limit } });
         },
-        [page, getOrders, getPage]
+        [getPage, getOrders]
+    )
+
+    useEffect(
+        () => {
+            const _page = page ? parseInt(page) : 1;
+            setPage(_page);
+        },
+        [page]
     )
 
     const [delOrder] =
@@ -78,52 +89,60 @@ export default function Orders ({ history }) {
                     { loading ? (
                         <div className="spinner-border" role="status"></div>
                     ) : (
-                    <div className="table-responsive">
-                        <table className="table table-striped">
-                            <thead className="thead-dark">
-                                <tr>
-                                    <th>Cliente</th>
-                                    <th>Descrição</th>
-                                    <th>Total</th>
-                                    <th>Data retirada</th>
-                                    <th>Data devolução</th>
-                                    <th>Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            {data && data.orders && data.orders.length > 0 ? data.orders.map( 
-                                item => (
-                                    <tr key={item.id}>
-                                        <td>{ item.customer.name }</td>
-                                        <td>{ item.description }</td>
-                                        <td>
-                                            <NumberFormat
-                                                value={item.total}
-                                                displayType={'text'}
-                                                thousandSeparator={'.'}
-                                                decimalSeparator={','}
-                                                prefix={'R$'}
-                                                decimalScale={2}
-                                                fixedDecimalScale={true}
-                                                renderText={value => value}
-                                            />
-                                        </td>
-                                        <td><Moment format="DD/MM/YYYY">{item.date_pickup}</Moment></td>
-                                        <td><Moment format="DD/MM/YYYY">{item.date_back}</Moment></td>
-                                        <td>
-                                            <Link to={'/order/' + item.id} className="btn btn-primary ml-1"><span><FontAwesomeIcon icon={faEdit} size="sm" /></span></Link>
-                                            <button onClick={ () => showModalDelete(item.id)} className="btn btn-danger ml-1"><span><FontAwesomeIcon icon={faTrash} size="sm" /></span></button>
-                                        </td>
+                    <>
+                        {data && data.orders_aggregate && data.orders_aggregate.aggregate && data.orders_aggregate.aggregate.totalCount > 0 && (
+                            <Pagination totalCount={data.orders_aggregate.aggregate.totalCount} page={getPage} limit={limit} history={history} />
+                        )}
+                        <div className="table-responsive">
+                            <table className="table table-striped">
+                                <thead className="thead-dark">
+                                    <tr>
+                                        <th>Cliente</th>
+                                        <th>Descrição</th>
+                                        <th>Total</th>
+                                        <th>Data retirada</th>
+                                        <th>Data devolução</th>
+                                        <th>Ações</th>
                                     </tr>
-                                )
-                            ) : (
-                            <tr>
-                                <td colSpan="6" className="text-center"><h1>VAZIO</h1></td>
-                            </tr>
-                            )}
-                            </tbody>
-                        </table>
-                    </div>
+                                </thead>
+                                <tbody>
+                                {data && data.orders && data.orders.length > 0 ? data.orders.map( 
+                                    item => (
+                                        <tr key={item.id}>
+                                            <td>{ item.customer.name }</td>
+                                            <td>{ item.description }</td>
+                                            <td>
+                                                <NumberFormat
+                                                    value={item.total}
+                                                    displayType={'text'}
+                                                    thousandSeparator={'.'}
+                                                    decimalSeparator={','}
+                                                    prefix={'R$'}
+                                                    decimalScale={2}
+                                                    fixedDecimalScale={true}
+                                                    renderText={value => value}
+                                                />
+                                            </td>
+                                            <td><Moment format="DD/MM/YYYY">{item.date_pickup}</Moment></td>
+                                            <td><Moment format="DD/MM/YYYY">{item.date_back}</Moment></td>
+                                            <td>
+                                                <Link to={'/order/' + item.id} className="btn btn-primary ml-1"><span><FontAwesomeIcon icon={faEdit} size="sm" /></span></Link>
+                                                <button onClick={ () => showModalDelete(item.id)} className="btn btn-danger ml-1"><span><FontAwesomeIcon icon={faTrash} size="sm" /></span></button>
+                                            </td>
+                                        </tr>
+                                    )
+                                ) : (
+                                <tr>
+                                    <td colSpan="6" className="text-center"><h1>VAZIO</h1></td>
+                                </tr>
+                                )}
+                                </tbody>
+                            </table>
+                        </div>
+                        {data && data.orders_aggregate && data.orders_aggregate.aggregate && data.orders_aggregate.aggregate.totalCount > 0 && (
+                            <Pagination totalCount={data.orders_aggregate.aggregate.totalCount} page={getPage} limit={limit} history={history} />
+                        )}
+                    </>
                     )}
                 </div>
             </div>

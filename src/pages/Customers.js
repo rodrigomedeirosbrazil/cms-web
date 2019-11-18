@@ -8,9 +8,15 @@ import { LinkContainer as Link } from 'react-router-bootstrap'
 
 import Navbar from '../components/Navbar';
 import Modal from '../components/Modal';
+import Pagination from '../components/Pagination';
 
 const CUSTOMERS = gql`
     query ($limit: Int!, $offset: Int!) {
+        customers_aggregate (where: {active: {_eq: true}}) {
+            aggregate {
+                totalCount: count
+            }
+        }
         customers (where: {active: {_eq: true}}, order_by: {name: asc}, limit: $limit, offset: $offset) { 
             id, name, email 
         }
@@ -26,21 +32,26 @@ const DELCUSTOMER = gql`
 `;
 
 export default function Customers ({ history }) {
-    let { page } = useParams();
-    const limit = 15;
+    const { page } = useParams();
     const [getPage, setPage] = useState(1);
+    const limit = 15;
     const [getCustomers, { data, loading }] = useLazyQuery(CUSTOMERS);
     const [showModal, setShowModal] = useState(false);
     const [value, setValue] = useState(false);
     
     useEffect(
         () => {
-            if (page) {
-                setPage(page);
-            }
-            getCustomers({ variables: { limit: limit, offset: getPage - 1 } });
+            getCustomers({ variables: { limit: limit, offset: (getPage - 1) * limit } });
         },
-        [page, getCustomers, getPage]
+        [getPage, getCustomers]
+    )
+
+    useEffect(
+        () => {
+            const _page = page ? parseInt(page) : 1;
+            setPage(_page);
+        },
+        [page]
     )
 
     const [delCustomer] =
@@ -73,35 +84,43 @@ export default function Customers ({ history }) {
                     { loading ? (
                         <div className="spinner-border" role="status"></div>
                     ) : (
-                    <div className="table-responsive">
-                        <table className="table table-striped">
-                            <thead className="thead-dark">
-                                <tr>
-                                    <th>Nome</th>
-                                    <th>Email</th>
-                                    <th>Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            { data && data.customers && data.customers.length >0 ? data.customers.map( 
-                                customer => (
-                                    <tr key={customer.id}>
-                                        <td>{ customer.name }</td>
-                                        <td>{ customer.email }</td>
-                                        <td>
-                                            <Link to={'/customer/' + customer.id} className="btn btn-primary ml-1"><span><FontAwesomeIcon icon={faUserEdit} size="sm" /></span></Link>
-                                            <button onClick={ () => showModalDelete(customer.id)} className="btn btn-danger ml-1"><span><FontAwesomeIcon icon={faTrash} size="sm" /></span></button>
-                                        </td>
+                    <>
+                        {data && data.customers_aggregate && data.customers_aggregate.aggregate && data.customers_aggregate.aggregate.totalCount > 0 && (
+                            <Pagination totalCount={data.customers_aggregate.aggregate.totalCount} page={getPage} limit={limit} history={history} />
+                        )}
+                        <div className="table-responsive">
+                            <table className="table table-striped">
+                                <thead className="thead-dark">
+                                    <tr>
+                                        <th>Nome</th>
+                                        <th>Email</th>
+                                        <th>Ações</th>
                                     </tr>
-                                )
-                            ) : (
-                                <tr>
-                                    <td colSpan="3" className="text-center"><h1>VAZIO</h1></td>
-                                </tr>
-                            )}
-                            </tbody>
-                        </table>
-                    </div>
+                                </thead>
+                                <tbody>
+                                { data && data.customers && data.customers.length >0 ? data.customers.map( 
+                                    customer => (
+                                        <tr key={customer.id}>
+                                            <td>{ customer.name }</td>
+                                            <td>{ customer.email }</td>
+                                            <td>
+                                                <Link to={'/customer/' + customer.id} className="btn btn-primary ml-1"><span><FontAwesomeIcon icon={faUserEdit} size="sm" /></span></Link>
+                                                <button onClick={ () => showModalDelete(customer.id)} className="btn btn-danger ml-1"><span><FontAwesomeIcon icon={faTrash} size="sm" /></span></button>
+                                            </td>
+                                        </tr>
+                                    )
+                                ) : (
+                                    <tr>
+                                        <td colSpan="3" className="text-center"><h1>VAZIO</h1></td>
+                                    </tr>
+                                )}
+                                </tbody>
+                            </table>
+                        </div>
+                        {data && data.customers_aggregate && data.customers_aggregate.aggregate && data.customers_aggregate.aggregate.totalCount > 0 && (
+                            <Pagination totalCount={data.customers_aggregate.aggregate.totalCount} page={getPage} limit={limit} history={history} />
+                        )}
+                    </>
                     )}
                 </div>
             </div>

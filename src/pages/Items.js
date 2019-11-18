@@ -34,11 +34,11 @@ const DELITEM = gql`
 
 export default function Items ({ history }) {
     const { page } = useParams();
+    const [getPage, setPage] = useState(1);
     const limit = 15;
     const [getItems, { data, loading }] = useLazyQuery(ITEMS);
     const [showModal, setShowModal] = useState(false);
     const [value, setValue] = useState(false);
-    const [getPage, setPage] = useState(1);
     
     useEffect(
         () => {
