@@ -84,7 +84,7 @@ export default function OrderNew({ history }) {
             
             <div className="container-fluid">
                 <div className="row" style={{ marginTop: 50 }}>
-                    <div className="col-md-6 offset-md-3">
+                    <div className="col-md-10 offset-md-1">
                         <h2>Novo Pedido:</h2>
                         {error && (
                             <div className="alert alert-danger" role="alert">

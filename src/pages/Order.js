@@ -18,7 +18,7 @@ const ORDER = gql`
             }
             order_items {
                 item {
-                    id, name
+                    id, name, picture
                 }
                 value
                 value_repo
@@ -132,7 +132,7 @@ export default function Orders ({ history }) {
         <Navbar></Navbar>
         <div className="container-fluid">
             <div className="row" style={{ marginTop: 50 }}>
-                <div className="col-md-6 offset-md-3">
+                <div className="col-md-10 offset-md-1">
                     <h2>Pedido: </h2>
                     { updated && (
                     <div className="alert alert-success" role="alert">

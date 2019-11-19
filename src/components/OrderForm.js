@@ -109,7 +109,7 @@ const OrderForm = ({values, setValues, onSubmit, loading}) => {
                     ) : ( 
                     <div className="row">
                         <div className="col-12">
-                            {values.customer.name}
+                            <a href={'/customer/'+ values.customer.id}>{values.customer.name}</a>
                             <button
                                 onClick={() => setValues({ ...values, customer: undefined })}
                                 className="btn btn-danger ml-1"
@@ -176,8 +176,8 @@ const OrderForm = ({values, setValues, onSubmit, loading}) => {
                         <table className="table table-striped">
                             <thead className="thead-dark">
                                 <tr>
-                                    <th>Produto</th>
-                                    <th>Qnt. disponível</th>
+                                    <th></th>
+                                    <th></th>
                                     <th>Qnt.</th>
                                     <th>Valor</th>
                                     <th>Reposição</th>

@@ -8,8 +8,10 @@ const OrderItem = ({ item, deleteItem, changeItem }) => {
 
     return (
         <tr>
+            <td>                                                
+                <img alt="" src={item.item.picture} className="img-thumbnail" width="100" />
+            </td>
             <td>{item.item.name}</td>
-            <td>NA</td>
             <td>
                 <input
                     type="number"
