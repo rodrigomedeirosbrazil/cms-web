@@ -5,6 +5,7 @@ import { useParams } from "react-router";
 
 import Navbar from '../components/Navbar';
 import ItemForm from '../components/ItemForm';
+import ItemOrders from '../components/ItemOrders';
 
 const ITEM = gql`
     query ($id: uuid!) {
@@ -122,6 +123,7 @@ export default function Items ({ history }) {
                 </div>
             </div>
         </div>
+        <ItemOrders item_id={id}/>
         </>
     );
 }
