@@ -19,7 +19,7 @@ const ORDERS = gql`
                 totalCount: count
             }
         }
-        orders (where: {active: {_eq: true}}, order_by: {date_pickup: asc}, limit: $limit, offset: $offset) { 
+        orders (where: {active: {_eq: true}}, order_by: {date_pickup: desc}, limit: $limit, offset: $offset) { 
             id, description, total, date_pickup, date_back
             customer {
                 name
