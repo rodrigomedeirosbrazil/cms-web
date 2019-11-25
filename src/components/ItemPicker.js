@@ -7,7 +7,7 @@ import NumberFormat from 'react-number-format';
 
 const ITEMS = gql`
     query ($name: String!) {
-        items (where: {name: {_ilike: $name} , active: {_eq: true}}, order_by: {name: asc}, limit: 10) { 
+        items (where: {name: {_ilike: $name}, active: {_eq: true}}, order_by: {name: asc}, limit: 10) { 
             id, name, value, value_repo, quantity
         }
     }

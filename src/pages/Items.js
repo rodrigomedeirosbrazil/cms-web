@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from "react-router";
 import { useLazyQuery, useMutation } from '@apollo/react-hooks';
 import gql from 'graphql-tag';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faEdit, faTrash, faPlusCircle } from '@fortawesome/free-solid-svg-icons'
+import { faEdit, faTrash, faPlusCircle, faSearch } from '@fortawesome/free-solid-svg-icons'
 import { LinkContainer as Link } from 'react-router-bootstrap'
 import NumberFormat from 'react-number-format';
+import qs from 'query-string';
 
 import Navbar from '../components/Navbar';
 import Modal from '../components/Modal';
@@ -24,6 +24,21 @@ const ITEMS = gql`
     }
 `;
 
+const ITEMS_BY_NAME = gql`
+    query ($search: String!, $limit: Int!, $offset: Int!) {
+        items_aggregate (where: {name: {_ilike: $search}, active: {_eq: true}}) {
+            aggregate {
+                totalCount: count
+            }
+        }
+        items (where: {name: {_ilike: $search}, active: {_eq: true}}, order_by: {idn: asc}, limit: $limit, offset: $offset) { 
+            id, idn, name, description, quantity, value, picture 
+        }
+    }
+`;
+
+let ITEMS_GQL = ITEMS;
+
 const DELITEM = gql`
     mutation ($id: uuid!) {
         update_items(where: {id: {_eq: $id}}, _set: {active: false}) {
@@ -33,26 +48,44 @@ const DELITEM = gql`
 `;
 
 export default function Items ({ history }) {
-    const { page } = useParams();
     const [getPage, setPage] = useState(1);
     const limit = 15;
-    const [getItems, { data, loading }] = useLazyQuery(ITEMS);
+    const [getItems, { data, loading }] = useLazyQuery(ITEMS_GQL);
     const [showModal, setShowModal] = useState(false);
     const [value, setValue] = useState(false);
+    const [search, setSearch] = useState('');
     
     useEffect(
         () => {
-            getItems({ variables: { limit: limit, offset: (getPage -1 ) * limit } });
+            if (search !== '') {
+                ITEMS_GQL = ITEMS_BY_NAME;
+                getItems({ variables: { search: `%${search}%`, limit: limit, offset: (getPage - 1) * limit } });
+            }
+            else {
+                ITEMS_GQL = ITEMS;
+                getItems({ variables: { limit: limit, offset: (getPage - 1) * limit } });
+            }
+            
         },
-        [getPage, getItems]
+        [getPage, getItems, search]
     )
 
     useEffect(
         () => {
-            const _page = page ? parseInt(page) : 1;
-            setPage(_page);
+            const parsedQuery = qs.parse(history.location.search);
+            if (parsedQuery.page) {
+                setPage(parseInt(parsedQuery.page));
+            } else {
+                setPage(1);
+            }
+
+            if (parsedQuery.search) {
+                setSearch(parsedQuery.search);
+            } else {
+                setSearch('');
+            }
         },
-        [page]
+        [history]
     )
 
     const [delItem] =
@@ -74,6 +107,24 @@ export default function Items ({ history }) {
         setShowModal(true);
     }
 
+    const handleSearch = (event) => {
+        setPage(1);
+        if (search !== '') {
+            ITEMS_GQL = ITEMS_BY_NAME;
+            getItems({ variables: { search: `%${search}%`, limit: limit, offset: (getPage - 1) * limit }});
+            const parsedQuery = qs.parse(history.location.search);
+            const newQueryString = qs.stringify({ ...parsedQuery, search, page: 1 });
+            history.push(`${history.location.pathname}?${newQueryString}`);
+        }
+        else {
+            ITEMS_GQL = ITEMS;
+            getItems({ variables: { limit: limit, offset: (getPage - 1) * limit } });
+            const parsedQuery = qs.parse(history.location.search);
+            const newQueryString = qs.stringify({ ...parsedQuery, search: '' });
+            history.push(`${history.location.pathname}?${newQueryString}`);
+        }
+    }
+
     return (
         <>
         <Navbar></Navbar>
@@ -86,8 +137,31 @@ export default function Items ({ history }) {
                         <div className="spinner-border" role="status"></div>
                     ) : (
                     <>
+                        <div className="row">
+                            <div className="col-md-8 offset-md-2">
+                                <div className="input-group mb-3">
+                                    <input
+                                        type="text"
+                                        className='form-control'
+                                        placeholder="Digite o nome de um produto"
+                                        name="search"
+                                        value={search}
+                                        onChange={ event => {
+                                            setSearch(event.target.value);
+                                        } }
+                                        onKeyPress={(e) => { e.key === 'Enter' && e.preventDefault() }}
+                                    />
+                                    <div className="input-group-append">
+                                        <button onClick={handleSearch} disabled={loading} type="button" className="btn btn-primary">
+                                            {loading ? (<div className="spinner-border spinner-border-sm" role="status"></div>)
+                                                : (<span><FontAwesomeIcon icon={faSearch} size="lg" /></span>)}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         {data && data.items_aggregate && data.items_aggregate.aggregate && data.items_aggregate.aggregate.totalCount > 0 && (
-                            <Pagination totalCount={data.items_aggregate.aggregate.totalCount} page={getPage} limit={limit} history={history} />
+                            <Pagination totalCount={data.items_aggregate.aggregate.totalCount} page={getPage} changePage={setPage} limit={limit} history={history} />
                         )}
                         <div className="table-responsive">
                             <table className="table table-striped">
@@ -140,7 +214,7 @@ export default function Items ({ history }) {
                             </table>
                         </div>
                         {data && data.items_aggregate && data.items_aggregate.aggregate && data.items_aggregate.aggregate.totalCount > 0 && (
-                            <Pagination totalCount={data.items_aggregate.aggregate.totalCount} page={getPage} limit={limit} history={history}/>
+                            <Pagination totalCount={data.items_aggregate.aggregate.totalCount} page={getPage} changePage={setPage} limit={limit} history={history}/>
                         )}
                     </>
                     )}

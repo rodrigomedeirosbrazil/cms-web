@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Pagination as BSPagination }  from 'react-bootstrap'
+import qs from 'query-string';
 
-const Pagination = ({ page, history, totalCount, limit }) => {
+const Pagination = ({ page, changePage, history, totalCount, limit }) => {
     const [getPage, setPage] = useState(1);
 
     useEffect(
@@ -24,15 +25,21 @@ const Pagination = ({ page, history, totalCount, limit }) => {
         return getPage - 1 > 0
     }
 
-    const getLocation = () => {
-        const location = history.location.pathname;
-        const lastSlash = location.lastIndexOf('/');
-        const path = location.substring(0,lastSlash+1);
-        if (path === '/') return location+path;
-        return path;
+    const goToNext = () => {
+        goToPage(getPage + 1);
     }
 
-    
+    const goToPrev = () => {
+        goToPage(getPage - 1);
+    }
+
+    const goToPage = _page => {
+        const parsedQuery = qs.parse(history.location.search);
+        const newQueryString = qs.stringify({ ...parsedQuery, page: _page });
+        history.push(`${history.location.pathname}?${newQueryString}`);
+        changePage(_page);
+    }
+
     return totalPages() > 1 ? (
         <BSPagination>
             {hasPrev() && (
@@ -40,14 +47,14 @@ const Pagination = ({ page, history, totalCount, limit }) => {
                     <BSPagination.First 
                         onClick={ 
                             () => {
-                                history.push(getLocation()+1);
+                                goToPage(1);
                             }
                         }
                     />
                     <BSPagination.Prev 
                         onClick={
                             () => {
-                                history.push(getLocation() + (getPage - 1));
+                                goToPrev();
                             }
                         }
                     />
@@ -57,7 +64,7 @@ const Pagination = ({ page, history, totalCount, limit }) => {
                 <BSPagination.Item
                     onClick={
                         () => {
-                            history.push(getLocation() + (getPage - 1));
+                            goToPrev();
                         }
                     }
                 >{getPage - 1}</BSPagination.Item>
@@ -67,7 +74,7 @@ const Pagination = ({ page, history, totalCount, limit }) => {
                 <BSPagination.Item
                     onClick={
                         () => {
-                            history.push(getLocation() + (getPage + 1));
+                            goToNext();
                         }
                     }
                 >{ getPage + 1}</BSPagination.Item>
@@ -76,7 +83,7 @@ const Pagination = ({ page, history, totalCount, limit }) => {
                 <BSPagination.Next 
                     onClick={
                         () => {
-                            history.push(getLocation() + (getPage + 1));
+                            goToNext();
                         }
                     }
                 />
@@ -85,7 +92,7 @@ const Pagination = ({ page, history, totalCount, limit }) => {
                 <BSPagination.Last 
                     onClick={
                         () => {
-                            history.push(getLocation() + totalPages());
+                            goToPage(totalPages());
                         }
                     }
                     key={totalPages()}

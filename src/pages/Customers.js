@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from "react-router";
 import { useLazyQuery, useMutation } from '@apollo/react-hooks';
 import gql from 'graphql-tag';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUserEdit, faTrash, faPlusCircle } from '@fortawesome/free-solid-svg-icons'
 import { LinkContainer as Link } from 'react-router-bootstrap'
+import qs from 'query-string';
 
 import Navbar from '../components/Navbar';
 import Modal from '../components/Modal';
@@ -32,7 +32,6 @@ const DELCUSTOMER = gql`
 `;
 
 export default function Customers ({ history }) {
-    const { page } = useParams();
     const [getPage, setPage] = useState(1);
     const limit = 15;
     const [getCustomers, { data, loading }] = useLazyQuery(CUSTOMERS);
@@ -48,10 +47,14 @@ export default function Customers ({ history }) {
 
     useEffect(
         () => {
-            const _page = page ? parseInt(page) : 1;
-            setPage(_page);
+            const parsedQuery = qs.parse(history.location.search);
+            if (parsedQuery.page) {
+                setPage(parseInt(parsedQuery.page));
+            } else {
+                setPage(1);
+            }
         },
-        [page]
+        [history]
     )
 
     const [delCustomer] =
@@ -86,7 +89,7 @@ export default function Customers ({ history }) {
                     ) : (
                     <>
                         {data && data.customers_aggregate && data.customers_aggregate.aggregate && data.customers_aggregate.aggregate.totalCount > 0 && (
-                            <Pagination totalCount={data.customers_aggregate.aggregate.totalCount} page={getPage} limit={limit} history={history} />
+                            <Pagination totalCount={data.customers_aggregate.aggregate.totalCount} page={getPage} changePage={setPage} limit={limit} history={history} />
                         )}
                         <div className="table-responsive">
                             <table className="table table-striped">
@@ -118,7 +121,7 @@ export default function Customers ({ history }) {
                             </table>
                         </div>
                         {data && data.customers_aggregate && data.customers_aggregate.aggregate && data.customers_aggregate.aggregate.totalCount > 0 && (
-                            <Pagination totalCount={data.customers_aggregate.aggregate.totalCount} page={getPage} limit={limit} history={history} />
+                            <Pagination totalCount={data.customers_aggregate.aggregate.totalCount} page={getPage} changePage={setPage} limit={limit} history={history} />
                         )}
                     </>
                     )}
