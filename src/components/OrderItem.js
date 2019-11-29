@@ -9,9 +9,9 @@ const OrderItem = ({ item, deleteItem, changeItem }) => {
     return (
         <tr>
             <td>                                                
-                <img alt="" src={item.item.picture} className="img-thumbnail" width="100" />
+                <img alt={item.item.id} src={item.item.picture} className="img-thumbnail" width="100" />
             </td>
-            <td>{item.item.name}</td>
+            <td>{item.item.name} #{item.item.idn}</td>
             <td>
                 <input
                     type="number"

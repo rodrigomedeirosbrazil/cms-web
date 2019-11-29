@@ -35,9 +35,9 @@ const OrderForm = ({values, setValues, onSubmit, loading}) => {
         onSubmit({ ...values, total: total() });
     };
 
-    const addItem = ({ id, name, value, value_repo }) => {
+    const addItem = ({ id, idn, name, value, value_repo, picture }) => {
         // TODO: verificar os dados antes!
-        const item = { item: {id, name}, value, value_repo, quantity: 1 }
+        const item = { item: {id, idn, name, picture}, value, value_repo, quantity: 1 }
         let order_items;
         if (!values.order_items) {
             order_items = [item];
@@ -170,6 +170,7 @@ const OrderForm = ({values, setValues, onSubmit, loading}) => {
                     <ItemPicker
                         onChange={addItem}
                         error={errors && errors.order_items}
+                        values={values}
                     />
                     {values.order_items && values.order_items.length > 0 ? (
                     <div className="table-responsive">

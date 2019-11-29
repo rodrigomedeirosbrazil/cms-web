@@ -18,7 +18,7 @@ const ORDER = gql`
             }
             order_items {
                 item {
-                    id, name, picture
+                    id, idn, name, picture
                 }
                 value
                 value_repo
