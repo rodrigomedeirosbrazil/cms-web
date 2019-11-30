@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSave, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faSave, faTrash, faClipboard } from '@fortawesome/free-solid-svg-icons';
 import NumberFormat from 'react-number-format';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 import moment from 'moment';
-import 'moment/locale/pt-br';
+import 'moment/locale/pt-br'; 
 
 import CustomerPicker from '../components/CustomerPicker';
 import ItemPicker from '../components/ItemPicker';
@@ -13,6 +14,14 @@ import MoneyInput from '../components/MoneyInput';
 
 const OrderForm = ({values, setValues, onSubmit, loading}) => {
     const [errors, setErrors] = useState();
+    const [orderText, setOrderText] = useState('');
+
+    useEffect(
+        () => {
+            setOrderText(createOrderText(values));
+        },
+        [values]
+    )
 
     const handleChange = (event) => {
         setValues({ ...values, [event.target.name]: event.target.value });
@@ -33,7 +42,7 @@ const OrderForm = ({values, setValues, onSubmit, loading}) => {
         setErrors(_errors);
         if (_errors) return;
 
-        onSubmit({ ...values, total: total() });
+        onSubmit({ ...values, total: total(values) });
     };
 
     const addItem = ({ id, idn, name, value, value_repo, picture }) => {
@@ -71,15 +80,6 @@ const OrderForm = ({values, setValues, onSubmit, loading}) => {
         const order_items = values.order_items.map( item => {return item});
         setValues({ ...values, order_items});
     };
-
-    const total = () => {
-        const _total = values.order_items
-            ? values.order_items.reduce((sum, i) => (
-                sum += i.quantity * i.value
-            ), 0)
-            : 0
-        return _total - values.discount;
-    }
 
     return (
         <form onSubmit={handleSubmit}>
@@ -216,7 +216,7 @@ const OrderForm = ({values, setValues, onSubmit, loading}) => {
                     </div>
                     Total:
                     <NumberFormat
-                        value={total()}
+                        value={total(values)}
                         displayType={'text'}
                         thousandSeparator={'.'}
                         decimalSeparator={','}
@@ -233,8 +233,50 @@ const OrderForm = ({values, setValues, onSubmit, loading}) => {
                     : (<span><FontAwesomeIcon icon={faSave} size="lg" /></span>)}
                 &nbsp;Salvar
             </button>
+            <CopyToClipboard 
+                text={orderText}
+            >
+                <button type="button" className="btn btn-info btn-block">
+                    <span><FontAwesomeIcon icon={faClipboard} size="lg" /></span>
+                    &nbsp;Copiar pedido para a memória
+                </button>
+            </CopyToClipboard>
         </form>
     )  
+}
+
+const total = values => {
+    const _total = values.order_items
+        ? values.order_items.reduce((sum, i) => (
+            sum += i.quantity * i.value
+        ), 0)
+        : 0
+    return _total - values.discount;
+}
+
+const createOrderText = values => {
+    console.log(values)
+    const days = moment(values.date_back).diff(moment(values.date_pickup), 'days')
+    const date_pickup = moment(values.date_pickup).format('DD/MM/YYYY')
+    const date_back = moment(values.date_back).format('DD/MM/YYYY')
+
+    let text = ''
+
+    text += values && values.customer && `Pedido de ${values.customer.name}\n`
+    text += `Tema: ${values.description}\n`
+    text += `Data de retirada: ${date_pickup}\n`
+    text += `Data de devolução: ${date_back}\n`
+    text += `Dias totais: ${days}\n`
+    text += `Produtos:\n`
+    values.order_items && values.order_items.forEach(
+        item => {
+            text += `${item.item.name} x${item.quantity}: R$ ${item.value}\n`
+        }
+    )
+    text += `Total de peças: ${(values.order_items && values.order_items.length) || '0'}\n`
+    if (values.discount && values.discount > 0) text += `Desconto: R$ ${values.discount}\n`
+    text += `Total: R$ ${total(values)}\n`
+    return text;
 }
 
 export default OrderForm;
