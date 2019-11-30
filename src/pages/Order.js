@@ -5,6 +5,7 @@ import { useParams } from "react-router";
 
 import Navbar from '../components/Navbar';
 import OrderForm from '../components/OrderForm';
+import Modal from '../components/Modal';
 
 const ORDER = gql`
     query ($id: uuid!) {
@@ -133,15 +134,18 @@ export default function Orders ({ history }) {
     return (
         <>
         <Navbar></Navbar>
+        <Modal
+            show={updated}
+            setShow={setUpdated}
+            header="Sucesso"
+            body="Dados foram gravados com sucesso!"
+            showCancel={false}
+            onClose={() => history.push('/orders')}
+        />
         <div className="container-fluid">
             <div className="row" style={{ marginTop: 50 }}>
                 <div className="col-md-10 offset-md-1">
                     <h2>Pedido: </h2>
-                    { updated && (
-                    <div className="alert alert-success" role="alert">
-                        Dados foram gravados com sucesso!
-                    </div>
-                    )}
                     {errorUpdate && (
                         <div className="alert alert-danger" role="alert">
                             Houve um erro durante a gravação: {errorUpdate.message}
