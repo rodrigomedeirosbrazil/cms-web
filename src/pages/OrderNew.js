@@ -12,6 +12,7 @@ const NEWORDER = gql`
         $id: uuid!, 
         $description: String, 
         $total: numeric!, 
+        $discount: numeric!, 
         $date_pickup: date, 
         $date_back: date,
         $order_items: [order_item_insert_input!]!,
@@ -22,6 +23,7 @@ const NEWORDER = gql`
                 id: $id, 
                 description: $description, 
                 total: $total, 
+                discount: $numeric, 
                 date_pickup: $date_pickup,
                 date_back: $date_back,
                 order_items: {

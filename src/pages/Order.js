@@ -10,7 +10,8 @@ const ORDER = gql`
     query ($id: uuid!) {
         orders (where: { id: { _eq: $id } }) { 
             description, 
-            total, 
+            total,
+            discount,
             date_pickup, 
             date_back, 
             customer {
@@ -33,6 +34,7 @@ const UPDATE_ORDER = gql`
         $id: uuid!
         $description: String, 
         $total: numeric!, 
+        $discount: numeric!, 
         $date_pickup: date, 
         $date_back: date,
         $order_items: [order_item_insert_input!]!,
@@ -66,6 +68,7 @@ const UPDATE_ORDER = gql`
             _set: {
                 description: $description, 
                 total: $total, 
+                discount: $discount, 
                 date_pickup: $date_pickup, 
                 date_back: $date_back, 
                 customer_id: $customer_id,

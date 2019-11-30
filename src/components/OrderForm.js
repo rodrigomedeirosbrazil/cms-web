@@ -8,6 +8,7 @@ import 'moment/locale/pt-br';
 import CustomerPicker from '../components/CustomerPicker';
 import ItemPicker from '../components/ItemPicker';
 import OrderItem from '../components/OrderItem';
+import MoneyInput from '../components/MoneyInput';
 
 
 const OrderForm = ({values, setValues, onSubmit, loading}) => {
@@ -77,7 +78,7 @@ const OrderForm = ({values, setValues, onSubmit, loading}) => {
                 sum += i.quantity * i.value
             ), 0)
             : 0
-        return _total;
+        return _total - values.discount;
     }
 
     return (
@@ -199,6 +200,20 @@ const OrderForm = ({values, setValues, onSubmit, loading}) => {
                     )}
                 </div>
                 <div className="card-footer text-muted">
+                    <div className="form-group">
+                        <label>Desconto</label>
+                        <div className="input-group mb-2">
+                            <div className="input-group-prepend">
+                                <div className="input-group-text">R$</div>
+                            </div>
+                            <MoneyInput
+                                className="form-control"
+                                name="discount"
+                                value={values.discount || "0.00"}
+                                onChange={handleChange}
+                            />
+                        </div>
+                    </div>
                     Total:
                     <NumberFormat
                         value={total()}
