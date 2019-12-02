@@ -1,18 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faChevronRight } from '@fortawesome/free-solid-svg-icons'
+import { faChevronRight, faCog } from '@fortawesome/free-solid-svg-icons'
 import { ListGroup } from 'react-bootstrap';
 import { LinkContainer as Link } from 'react-router-bootstrap'
 import moment from 'moment';
 import 'moment/locale/pt-br';
 
 import logo from '../assets/medeirostec_logo.png'
-import { getAuth } from '../services/auth';
+import { getAuth } from '../services/auth'
 import Navbar from '../components/Navbar'
+import Catalog from '../components/Catalog'
 
 export default function Main ({ history }) {
     moment.locale('pt-br');
     const [name, setName] = useState('');
+    const [loading, setLoading] = useState(false);
     const [dateLimit, setDateLimit] = useState('');
 
     useEffect(
@@ -24,6 +26,12 @@ export default function Main ({ history }) {
             }
         }
     , [])
+
+    const catalogGenerate = async () => {
+        setLoading(true);
+        await Catalog();
+        setLoading(false);
+    }
 
     return (
         <>
@@ -54,12 +62,17 @@ export default function Main ({ history }) {
                                 <FontAwesomeIcon icon={ faChevronRight } className="float-right" />
                             </ListGroup.Item>
                         </Link>
-                        <Link to="/reports">
+                        {/* <Link to="/reports">
                             <ListGroup.Item action disabled>
                                 Relatórios
                                 <FontAwesomeIcon icon={ faChevronRight } className="float-right" />
                             </ListGroup.Item>
-                        </Link>
+                        </Link> */}
+                        <ListGroup.Item action onClick={catalogGenerate} disabled={loading}>
+                            Catálogo de produtos (PDF)
+                            {loading ? (<div className="float-right spinner-border spinner-border-sm" role="status"></div>)
+                                    : (<span><FontAwesomeIcon icon={faCog} className="float-right" /></span>)}
+                        </ListGroup.Item>
                     </ListGroup>
                 </div>
             </div>
