@@ -67,7 +67,7 @@ export default function Items ({ history }) {
             }
             
         },
-        [getPage, getItems, search]
+        [getPage, getItems]
     )
 
     useEffect(
