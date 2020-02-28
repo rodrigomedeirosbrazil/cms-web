@@ -27,6 +27,7 @@ export default function Navbar({ history }) {
                     <Link to="/orders"><Nav.Link active={window.location.pathname === '/orders'}>Pedidos</Nav.Link></Link>
                 </Nav>
                 <NavDropdown title={name || 'Usuário'} className="justify-content-end">
+                    <Link to="/profile"><Nav.Link>Meu perfil</Nav.Link></Link>
                     <Link to="/change_password"><Nav.Link>Trocar senha</Nav.Link></Link>
                     <Link to="/login"><Nav.Link>Sair</Nav.Link></Link>
                 </NavDropdown>

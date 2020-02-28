@@ -6,6 +6,7 @@ import { getAuth } from './services/auth';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import Profile from './pages/Profile';
 import RecoveryPassword from './pages/RecoveryPassword';
 import ChangePassword from './pages/ChangePassword';
 import Main from './pages/Main';
@@ -46,6 +47,7 @@ export default function Routes () {
                 <Route name="login" path="/login" exact component={Login}/>
                 <Route name="signup" path="/signup" exact component={Signup} />
                 <Route name="recovery_password" path="/recovery_password" exact component={RecoveryPassword} />
+                <PrivateRoute name="profile" path="/profile" exact component={Profile} />
                 <PrivateRoute name="change_password" path="/change_password" exact component={ChangePassword} />
                 <PrivateRoute name="main" path="/main" exact component={Main}/>
                 <PrivateRoute name="customers" path="/customers" component={Customers}/>
