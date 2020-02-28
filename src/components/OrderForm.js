@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSave, faTrash, faClipboard } from '@fortawesome/free-solid-svg-icons';
+import { faSave, faTrash, faClipboard, faReceipt } from '@fortawesome/free-solid-svg-icons';
 import NumberFormat from 'react-number-format';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import moment from 'moment';
@@ -10,11 +10,12 @@ import CustomerPicker from '../components/CustomerPicker';
 import ItemPicker from '../components/ItemPicker';
 import OrderItem from '../components/OrderItem';
 import MoneyInput from '../components/MoneyInput';
-
+import Receipt from '../components/Receipt';
 
 const OrderForm = ({values, setValues, onSubmit, loading}) => {
     const [errors, setErrors] = useState();
     const [orderText, setOrderText] = useState('');
+    const [loadingReceipt, setLoadingReceipt] = useState(false);
 
     useEffect(
         () => {
@@ -22,6 +23,12 @@ const OrderForm = ({values, setValues, onSubmit, loading}) => {
         },
         [values]
     )
+
+    const receiptGenerate = async () => {
+        setLoadingReceipt(true);
+        await Receipt(values);
+        setLoadingReceipt(false);
+    }
 
     const handleChange = (event) => {
         setValues({ ...values, [event.target.name]: event.target.value });
@@ -232,6 +239,10 @@ const OrderForm = ({values, setValues, onSubmit, loading}) => {
                 {loading ? (<div className="spinner-border spinner-border-sm" role="status"></div>)
                     : (<span><FontAwesomeIcon icon={faSave} size="lg" /></span>)}
                 &nbsp;Salvar
+            </button>
+            <button type="button" onClick={receiptGenerate} disabled={loadingReceipt} className="btn btn-success btn-block">
+                <span><FontAwesomeIcon icon={faReceipt} size="lg" /></span>
+                &nbsp;Recibo
             </button>
             <CopyToClipboard 
                 text={orderText}
