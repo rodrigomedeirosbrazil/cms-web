@@ -128,7 +128,7 @@ const CustomerForm = ({values, setValues, onSubmit, loading}) => {
                 <input
                     type="text"
                     className="form-control"
-                    placeholder="Digite a Cidade"
+                    placeholder="Digite o bairro"
                     onChange={handleChange}
                     defaultValue={values.neighborhood || ''}
                     name="neighborhood"
