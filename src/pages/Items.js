@@ -67,6 +67,7 @@ export default function Items ({ history }) {
             }
             
         },
+        // eslint-disable-next-line
         [getPage, getItems]
     )
 

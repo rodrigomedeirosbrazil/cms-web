@@ -10,14 +10,14 @@ import CustomerOrders from '../components/CustomerOrders';
 const CUSTOMER = gql`
     query ($id: uuid!) {
         customers (where: { id: { _eq: $id } }) { 
-            id, name, email, address, city, state, zip
+            id, name, email, doc, phone, address, neighborhood, city, state, zip
         }
     }
 `;
 
 const UPDATECUSTOMER = gql`
-    mutation ($id: uuid!, $name: String!, $email: String, $address: String, $city: String, $state: String, $zip: String) {
-        update_customers(where: {id: {_eq: $id}}, _set: {name: $name, email: $email, address: $address, city: $city, state: $state, zip: $zip}) {
+    mutation ($id: uuid!, $name: String!, $email: String, $doc: String, $phone: String, $address: String, $neighborhood: String, $city: String, $state: String, $zip: String) {
+        update_customers(where: {id: {_eq: $id}}, _set: {name: $name, email: $email, doc: $doc, phone: $phone, address: $address, neighborhood: $neighborhood, city: $city, state: $state, zip: $zip}) {
             affected_rows
         }
     }

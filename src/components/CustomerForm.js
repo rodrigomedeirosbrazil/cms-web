@@ -4,6 +4,8 @@ import { faSave, faSearch } from '@fortawesome/free-solid-svg-icons';
 import cep from 'cep-promise';
 import MaskedInput from 'react-text-mask'
 
+import DocInput from '../components/DocInput';
+
 const CustomerForm = ({values, setValues, onSubmit, loading}) => {
     const [loadingCep, setLoadingCep] = useState(false);
     const [errors, setErrors] = useState({});
@@ -15,10 +17,11 @@ const CustomerForm = ({values, setValues, onSubmit, loading}) => {
         cep(values.zip)
         .then((data) => {
             setLoadingCep(false);
-            const address = data.street + ', - ' + data.neighborhood;
+            const address = data.street;
+            const neighborhood = data.neighborhood;
             const city = data.city;
             const state = data.state;
-            setValues({ ...values, address, city, state })
+            setValues({ ...values, address, city, state, neighborhood })
         })
         .catch(() => {
             alert('Não foi possível encontrar o CEP');
@@ -69,6 +72,27 @@ const CustomerForm = ({values, setValues, onSubmit, loading}) => {
                 />
                 <span className="text-danger">{errors.email && errors.email.message}</span>
             </div>
+            <div className="form-group">
+                <label>CPF/CNPJ</label>
+                <DocInput
+                    className="form-control"
+                    name="doc"
+                    value={values.doc || ''}
+                    onChange={handleChange}
+                />
+                <span className="text-danger">{errors.doc && errors.doc.message}</span>
+            </div>
+            <div className="form-group">
+                <label>Telefone</label>
+                <MaskedInput
+                    mask={['(', /[1-9]/, /\d/, ')', ' ', /\d/, /\d/, /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/]}
+                    className="form-control"
+                    onChange={handleChange}
+                    defaultValue={values.phone || ''}
+                    placeholder="Digite o número do telefone"
+                    name="phone"
+                />
+            </div>
             <div className="input-group mb-3">
                 <div className="input-group-prepend">
                     <label className="input-group-text">CEP</label>
@@ -97,6 +121,17 @@ const CustomerForm = ({values, setValues, onSubmit, loading}) => {
                     onChange={handleChange} 
                     defaultValue={values.address || ''}
                     name="address"
+                />
+            </div>
+            <div className="form-group">
+                <label>Bairro</label>
+                <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Digite a Cidade"
+                    onChange={handleChange}
+                    defaultValue={values.neighborhood || ''}
+                    name="neighborhood"
                 />
             </div>
             <div className="form-group">
