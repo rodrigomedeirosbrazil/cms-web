@@ -10,6 +10,7 @@ import logo from '../assets/medeirostec_logo.png'
 import { getAuth } from '../services/auth'
 import Navbar from '../components/Navbar'
 import Catalog from '../components/Catalog'
+import GreetingTime from '../components/GreetingTime'
 
 export default function Main ({ history }) {
     moment.locale('pt-br');
@@ -35,12 +36,12 @@ export default function Main ({ history }) {
 
     return (
         <>
-        <Navbar></Navbar>
+        <Navbar />
         <div className="container-fluid">
             <div className="row" style={{ marginTop: 50 }}>
                 <div className="col-md-4 offset-md-4">
                     <p className="text-center"><img src={ logo } alt="MedeirosTEC" /></p>
-                    <p className="text-center">Bem vindo <b>{name}</b>!</p>
+                        <p className="text-center"><GreetingTime />, <b>{name}</b>!</p>
                         {dateLimit && (<p className="text-center">Sua assinatura vence {moment(dateLimit).fromNow()} ({moment(dateLimit).format('DD/MM/YYYY')})</p>)}
 
                     <ListGroup>
