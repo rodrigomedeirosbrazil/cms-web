@@ -114,13 +114,17 @@ const Receipt = async _data => {
                                     ]
                                 ]
                             },
-                            {
-                                "text": [
-                                    "Nº DO PEDIDO",
-                                    "0101010101"
-                                ],
-                                "alignment": "center"
-                            }
+                            [
+                                {
+                                    text:  "Nº DO PEDIDO",
+                                    alignment: "center"
+                                },
+                                {
+                                    text: _data.idn,
+                                    alignment: "center",
+                                    fontSize: 20
+                                },
+                            ]
                         ]
                     ]
                 }

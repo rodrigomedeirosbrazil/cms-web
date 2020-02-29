@@ -10,6 +10,8 @@ import Modal from '../components/Modal';
 const ORDER = gql`
     query ($id: uuid!) {
         orders (where: { id: { _eq: $id } }) { 
+            id
+            idn
             description, 
             total,
             discount,
@@ -145,7 +147,7 @@ export default function Orders ({ history }) {
         <div className="container-fluid">
             <div className="row" style={{ marginTop: 50 }}>
                 <div className="col-md-10 offset-md-1">
-                    <h2>Pedido: </h2>
+                    <h2>Pedido: #{values.idn} </h2>
                     {errorUpdate && (
                         <div className="alert alert-danger" role="alert">
                             Houve um erro durante a gravação: {errorUpdate.message}

@@ -6,10 +6,13 @@ import uuid from 'uuid/v4';
 import Navbar from '../components/Navbar';
 import OrderForm from '../components/OrderForm';
 import Modal from '../components/Modal';
+import { getAuth } from '../services/auth';
+import graphql from '../services/graphql'
 
 const NEWORDER = gql`
     mutation (
         $id: uuid!, 
+        $idn: Int!, 
         $description: String, 
         $total: numeric!, 
         $discount: numeric!, 
@@ -21,9 +24,10 @@ const NEWORDER = gql`
         insert_orders(
             objects: {
                 id: $id, 
+                idn: $idn, 
                 description: $description, 
                 total: $total, 
-                discount: $numeric, 
+                discount: $discount, 
                 date_pickup: $date_pickup,
                 date_back: $date_back,
                 order_items: {
@@ -52,9 +56,29 @@ export default function OrderNew({ history }) {
             }
         );
 
-    const onSubmit = (data) => {
+    const getLastIdn = async () => {
+        const ORDERS = `
+            query ($user_id: uuid!) {
+                orders (order_by: {idn: desc}, limit: 1, where: { customer: {user_id: {_eq: $user_id}}, active: {_eq: true}, idn: {_is_null: false} }) { 
+                    idn
+                }
+            }
+        `;
+
+        const auth = getAuth();
+        const _data = await graphql(
+            ORDERS,
+            {
+                user_id: auth.user.id
+            }
+        );
+        return _data.orders && _data.orders.length === 1 ? _data.orders[0].idn + 1 : 1
+    }
+
+    const onSubmit = async (data) => {
         let _data = { ...data };
         _data.id = uuid();
+        _data.idn = await getLastIdn();
         delete _data.__typename;
         delete _data.customer;
         _data.customer_id = data.customer.id;

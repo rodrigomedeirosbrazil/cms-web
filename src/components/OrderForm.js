@@ -240,10 +240,13 @@ const OrderForm = ({values, setValues, onSubmit, loading}) => {
                     : (<span><FontAwesomeIcon icon={faSave} size="lg" /></span>)}
                 &nbsp;Salvar
             </button>
-            <button type="button" onClick={receiptGenerate} disabled={loadingReceipt} className="btn btn-success btn-block">
-                <span><FontAwesomeIcon icon={faReceipt} size="lg" /></span>
-                &nbsp;Recibo
-            </button>
+            { values.id && (
+                <button type="button" onClick={receiptGenerate} disabled={loadingReceipt} className="btn btn-success btn-block">
+                    {loadingReceipt ? (<div className="spinner-border spinner-border-sm" role="status"></div>)
+                        : (<span><FontAwesomeIcon icon={faReceipt} size="lg" /></span>)}
+                    &nbsp;Recibo
+                </button>
+            )}
             <CopyToClipboard 
                 text={orderText}
             >
@@ -252,6 +255,7 @@ const OrderForm = ({values, setValues, onSubmit, loading}) => {
                     &nbsp;Copiar pedido para a memória
                 </button>
             </CopyToClipboard>
+
         </form>
     )  
 }
