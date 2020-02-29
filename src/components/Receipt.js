@@ -14,8 +14,7 @@ const normalizeCurrencyDotToComma = value => {
 
 const Receipt = async _data => {
     const auth = getAuth();
-    const response = await api.post('/auth/me',
-        null,
+    const response = await api.get('/auth/me',
         {
             headers: {
                 Authorization: 'Bearer ' + (auth ? auth.token : '')

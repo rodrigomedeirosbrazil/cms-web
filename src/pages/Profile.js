@@ -25,8 +25,7 @@ export default function Profile ({ history }) {
         setError('');
         try {
             const auth = getAuth();
-            const response = await api.post('/auth/me', 
-                null, 
+            const response = await api.get('/auth/me', 
                 {
                     headers: {
                         Authorization: 'Bearer ' + (auth ? auth.token : '')
