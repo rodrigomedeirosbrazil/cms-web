@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from "react-router";
 
 import Navbar from '../components/Navbar';
 import Modal from '../components/Modal';
@@ -8,7 +7,6 @@ import api from '../services/api';
 import { getAuth } from '../services/auth';
 
 export default function Profile ({ history }) {
-    let { id } = useParams();
     const [values, setValues] = useState({});
     const [loading, setLoading] = useState(true);
     const [getError, setError] = useState('');
@@ -28,7 +26,7 @@ export default function Profile ({ history }) {
         try {
             const auth = getAuth();
             const response = await api.post('/auth/me', 
-                { id }, 
+                null, 
                 {
                     headers: {
                         Authorization: 'Bearer ' + (auth ? auth.token : '')

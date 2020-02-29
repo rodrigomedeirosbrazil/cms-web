@@ -266,7 +266,6 @@ const total = values => {
 }
 
 const createOrderText = values => {
-    console.log(values)
     const days = moment(values.date_back).diff(moment(values.date_pickup), 'days')
     const date_pickup = moment(values.date_pickup).format('DD/MM/YYYY')
     const date_back = moment(values.date_back).format('DD/MM/YYYY')

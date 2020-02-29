@@ -16,7 +16,7 @@ const ORDER = gql`
             date_pickup, 
             date_back, 
             customer {
-                id, name
+                id, name, doc, phone, address, neighborhood, city, state, zip
             }
             order_items {
                 item {
