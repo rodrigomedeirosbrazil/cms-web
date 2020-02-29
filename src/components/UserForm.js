@@ -5,6 +5,7 @@ import cep from 'cep-promise';
 import MaskedInput from 'react-text-mask'
 
 import DocInput from '../components/DocInput';
+import PicturePicker from '../components/PicturePicker';
 
 const UserForm = ({values, setValues, onSubmit, loading}) => {
     const [loadingCep, setLoadingCep] = useState(false);
@@ -48,6 +49,17 @@ const UserForm = ({values, setValues, onSubmit, loading}) => {
             { values.id && (
                 <input type="hidden" name="id" defaultValue={values.id || ''} />
             )}
+            <div className="row mb-4">
+                <div className="col-12">
+                    <PicturePicker
+                        name="logo"
+                        src={values.logo || ''}
+                        onChange={handleChange}
+                        mime='image/png'
+                        compress={1}
+                    />
+                </div>
+            </div>
             <div className="form-group">
                 <label>Nome</label>
                 <input 

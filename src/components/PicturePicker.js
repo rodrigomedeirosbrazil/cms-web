@@ -5,7 +5,7 @@ import { faUndo } from '@fortawesome/free-solid-svg-icons';
 
 import getCroppedImg from './cropImage'
 
-const PicturePicker = ({ name, src, onChange }) => {
+const PicturePicker = ({ name, src, onChange, mime, compress }) => {
     const [crop, setCrop] = useState({ x: 0, y: 0 })
     const [rotation, setRotation] = useState(0)
     const [zoom, setZoom] = useState(1)
@@ -16,14 +16,15 @@ const PicturePicker = ({ name, src, onChange }) => {
     const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
         setCroppedAreaPixels(croppedAreaPixels)
     }, [])
-    
     const showCroppedImage = useCallback(async () => {
         try {
             const croppedImage = await getCroppedImg(
                 imgSrc,
                 croppedAreaPixels,
                 rotation,
-                160, 160
+                160, 160,
+                mime ? mime : null,
+                compress ? compress : null
             )
 
             const returnEvent = {
@@ -37,7 +38,7 @@ const PicturePicker = ({ name, src, onChange }) => {
         } catch (e) {
             console.error(e)
         }
-    }, [croppedAreaPixels, rotation, imgSrc, name, onChange])
+    }, [croppedAreaPixels, rotation, imgSrc, name, onChange, mime, compress])
 
     const onFileChange = async e => {
         if (e.target.files && e.target.files.length > 0) {
