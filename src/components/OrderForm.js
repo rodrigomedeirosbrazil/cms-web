@@ -181,28 +181,14 @@ const OrderForm = ({values, setValues, onSubmit, loading}) => {
                         values={values}
                     />
                     {values.order_items && values.order_items.length > 0 ? (
-                    <div className="table-responsive">
-                        <table className="table table-striped">
-                            <thead className="thead-dark">
-                                <tr>
-                                    <th></th>
-                                    <th></th>
-                                    <th>Qnt.</th>
-                                    <th>Valor</th>
-                                    <th>Reposição</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {values.order_items.map(
-                                    item => (
-                                        <OrderItem key={item.item.id} item={item} deleteItem={deleteItem} changeItem={changeItem}/>
-                                    )
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                    ):(
+                        <>
+                        {values.order_items.map(
+                            item => (
+                                <OrderItem key={item.item.id} item={item} deleteItem={deleteItem} changeItem={changeItem} />
+                            )
+                        )}
+                        </>
+                    ) : (
                         <span className="text-center">Nenhum produto adicionado</span>
                     )}
                 </div>
