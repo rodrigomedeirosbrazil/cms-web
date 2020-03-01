@@ -198,7 +198,7 @@ const Receipt = async _data => {
         let item = _data.order_items[i];
         table.body.push(
             [
-                { text: i + ' - ' + item.item.name }, 
+                { text: (i + 1) + ' - ' + item.item.name + ' - ' + item.item.idn }, 
                 { text: item.quantity, alignment: 'right' }, 
                 { text: normalizeCurrencyDotToComma(item.value), alignment: 'right' }, 
                 { text: normalizeCurrencyDotToComma(item.value * item.quantity), alignment: 'right' }, 
