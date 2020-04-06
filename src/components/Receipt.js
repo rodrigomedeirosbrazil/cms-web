@@ -254,9 +254,14 @@ const Receipt = async _data => {
     pdf.content.push({ table });
     pdf.content.push({ text: '', pageBreak: 'after' });
     pdf.content.push(contractText);
-    // console.log(JSON.stringify(pdf));
-    pdfMake.createPdf(pdf).open();
-    // pdfMake.createPdf(pdf).download('pedido.pdf');
+
+    try {
+        // console.log(JSON.stringify(pdf));
+        // pdfMake.createPdf(pdf).open();
+        pdfMake.createPdf(pdf).download('pedido.pdf');
+    } catch (error) {
+        alert('O navegador impediu a abertura do PDF');
+    }
 }
 
 export default Receipt;
