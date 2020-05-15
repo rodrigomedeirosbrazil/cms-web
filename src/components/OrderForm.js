@@ -252,7 +252,7 @@ const total = values => {
             sum += i.quantity * i.value
         ), 0)
         : 0
-    return _total - values.discount;
+    return _total - (values.discount ?? 0);
 }
 
 const createOrderText = values => {
