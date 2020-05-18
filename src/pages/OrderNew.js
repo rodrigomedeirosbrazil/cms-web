@@ -42,7 +42,7 @@ const NEWORDER = gql`
 `;
 
 export default function OrderNew({ history }) {
-    const [values, setValues] = useState({});
+    const [values, setValues] = useState({ discount: 0, total: 0 });
     const [showModal, setShowModal] = useState(false);
 
     const [newOrder, { loading, error }] = 
