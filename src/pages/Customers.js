@@ -34,7 +34,9 @@ const DELCUSTOMER = gql`
 export default function Customers ({ history }) {
     const [getPage, setPage] = useState(1);
     const limit = 15;
-    const [getCustomers, { data, loading }] = useLazyQuery(CUSTOMERS);
+    const [getCustomers, { data, loading }] = useLazyQuery(CUSTOMERS, {
+        fetchPolicy: "network-only"
+    });
     const [showModal, setShowModal] = useState(false);
     const [value, setValue] = useState(false);
     

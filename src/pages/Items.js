@@ -50,7 +50,9 @@ const DELITEM = gql`
 export default function Items ({ history }) {
     const [getPage, setPage] = useState(1);
     const limit = 15;
-    const [getItems, { data, loading }] = useLazyQuery(ITEMS_GQL);
+    const [getItems, { data, loading }] = useLazyQuery(ITEMS_GQL, {
+        fetchPolicy: "network-only"
+    });
     const [showModal, setShowModal] = useState(false);
     const [value, setValue] = useState(false);
     const [search, setSearch] = useState('');

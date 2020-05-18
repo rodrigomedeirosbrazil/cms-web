@@ -39,7 +39,9 @@ const DELORDER = gql`
 export default function Orders ({ history }) {
     const [getPage, setPage] = useState(1);
     const limit = 15;
-    const [getOrders, { data, loading }] = useLazyQuery(ORDERS);
+    const [getOrders, { data, loading }] = useLazyQuery(ORDERS, {
+        fetchPolicy: "network-only"
+    });
     const [showModal, setShowModal] = useState(false);
     const [value, setValue] = useState(false);
     
