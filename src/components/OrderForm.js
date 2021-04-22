@@ -207,7 +207,21 @@ const OrderForm = ({values, setValues, onSubmit, loading}) => {
                             />
                         </div>
                     </div>
-                    Total:
+                    <div className="form-group">
+                        <label>Sinal</label>
+                        <div className="input-group mb-2">
+                            <div className="input-group-prepend">
+                                <div className="input-group-text">R$</div>
+                            </div>
+                            <MoneyInput
+                                className="form-control"
+                                name="deposit"
+                                value={values.deposit || "0.00"}
+                                onChange={handleChange}
+                            />
+                        </div>
+                    </div>
+                    Total:&nbsp;
                     <NumberFormat
                         value={total(values)}
                         displayType={'text'}
@@ -217,7 +231,19 @@ const OrderForm = ({values, setValues, onSubmit, loading}) => {
                         decimalScale={2}
                         fixedDecimalScale={true}
                         renderText={value => value}
-                    /><br />
+                    />
+                    &nbsp; - Total a pagar:&nbsp;
+                    <NumberFormat
+                        value={total(values) - values.deposit}
+                        displayType={'text'}
+                        thousandSeparator={'.'}
+                        decimalSeparator={','}
+                        prefix={'R$'}
+                        decimalScale={2}
+                        fixedDecimalScale={true}
+                        renderText={value => value}
+                    />
+                    <br />
                     Peças: {values && values.order_items ? values.order_items.length: '0'}
                 </div>
             </div>

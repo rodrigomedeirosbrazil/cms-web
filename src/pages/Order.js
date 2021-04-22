@@ -15,6 +15,7 @@ const ORDER = gql`
             description, 
             total,
             discount,
+            deposit,
             date_pickup, 
             date_back, 
             customer {
@@ -35,9 +36,11 @@ const ORDER = gql`
 const UPDATE_ORDER = gql`
     mutation (
         $id: uuid!
+        $idn: numeric!
         $description: String, 
         $total: numeric!, 
-        $discount: numeric!, 
+        $discount: numeric!,
+        $deposit: numeric!,
         $date_pickup: date, 
         $date_back: date,
         $order_items: [order_item_insert_input!]!,
@@ -71,7 +74,8 @@ const UPDATE_ORDER = gql`
             _set: {
                 description: $description, 
                 total: $total, 
-                discount: $discount, 
+                discount: $discount,
+                deposit: $deposit,
                 date_pickup: $date_pickup, 
                 date_back: $date_back, 
                 customer_id: $customer_id,

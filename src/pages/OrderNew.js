@@ -15,7 +15,8 @@ const NEWORDER = gql`
         $idn: Int!, 
         $description: String, 
         $total: numeric!, 
-        $discount: numeric!, 
+        $discount: numeric!,
+        $deposit: numeric!,
         $date_pickup: date, 
         $date_back: date,
         $order_items: [order_item_insert_input!]!,
@@ -27,7 +28,8 @@ const NEWORDER = gql`
                 idn: $idn, 
                 description: $description, 
                 total: $total, 
-                discount: $discount, 
+                discount: $discount,
+                deposit: $deposit,
                 date_pickup: $date_pickup,
                 date_back: $date_back,
                 order_items: {
@@ -42,7 +44,7 @@ const NEWORDER = gql`
 `;
 
 export default function OrderNew({ history }) {
-    const [values, setValues] = useState({ discount: 0, total: 0 });
+    const [values, setValues] = useState({ discount: 0, deposit: 0, total: 0 });
     const [showModal, setShowModal] = useState(false);
 
     const [newOrder, { loading, error }] = 
