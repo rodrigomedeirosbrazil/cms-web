@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from "react-router";
+import { LinkContainer as Link } from 'react-router-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCopy } from '@fortawesome/free-solid-svg-icons'
 
 import graphql from '../services/graphql'
 import Navbar from '../components/Navbar';
@@ -153,7 +156,22 @@ const Order = ({history}) => {
         <div className="container-fluid">
             <div className="row" style={{ marginTop: 50 }}>
                 <div className="col-md-10 offset-md-1">
-                    <h2>Pedido: #{values?.idn} </h2>
+                    <h2>
+                        Pedido: #{values?.idn} 
+                        <Link 
+                            to={{
+                                pathname: '/order/new',
+                                state: { 
+                                    values: { 
+                                        order_items: values.order_items
+                                    }
+                                }
+                            }}
+                            className="btn btn-primary btn-sm ml-2" 
+                        >
+                            <span><FontAwesomeIcon icon={faCopy} size="lg" /></span>
+                        </Link>
+                    </h2>
                     {errorUpdate && (
                         <div className="alert alert-danger" role="alert">
                             Houve um erro durante a gravação: {errorUpdate.message}

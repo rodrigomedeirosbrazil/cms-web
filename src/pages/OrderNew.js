@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useMutation } from '@apollo/react-hooks';
 import gql from 'graphql-tag';
 import uuid from 'uuid/v4';
@@ -43,9 +43,19 @@ const NEWORDER = gql`
     }
 `;
 
-export default function OrderNew({ history }) {
+export default function OrderNew({ history, location }) {
     const [values, setValues] = useState({ discount: 0, deposit: 0, total: 0 });
     const [showModal, setShowModal] = useState(false);
+
+    useEffect(
+        () => {
+            if (location && location.state && location.state.values) {
+                setValues({ ...location.state.values, discount: 0, deposit: 0 });
+            }
+        },
+        // eslint-disable-next-line
+        [history]
+    )
 
     const [newOrder, { loading, error }] = 
         useMutation(
