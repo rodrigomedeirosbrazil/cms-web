@@ -1,4 +1,4 @@
-export default value => {
+const normalizeCnpj = value => {
     if (!value) return value;
 
     let cnpj = value + '';
@@ -13,3 +13,5 @@ export default value => {
     }
     return cnpj.slice(0, 18);
 }
+
+export default normalizeCnpj

@@ -2,7 +2,7 @@ import React from 'react';
 import moment from 'moment';
 import 'moment/locale/pt-br'; 
 
-export default () => {
+const GreetingTime = () => {
     const currentTime = moment()
 
     if (!currentTime || !currentTime.isValid()) { return (<>Olá</>); }
@@ -21,3 +21,5 @@ export default () => {
     // Between dawn and noon
     return (<>Bom dia</>);
 }
+
+export default GreetingTime

@@ -1,4 +1,4 @@
-export default value => {
+const normalizeCpf = value => {
     if (!value) return value;
 
     let cpf = value + '';
@@ -12,3 +12,5 @@ export default value => {
     }
     return cpf.slice(0, 14);
 }
+
+export default normalizeCpf

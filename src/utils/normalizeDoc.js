@@ -2,7 +2,7 @@ import normalizeCpf from './normalizeCpf';
 import normalizeCnpj from './normalizeCnpj';
 import onlyNumbers from './onlyNumbers';
 
-export default value => {
+const normalizeDoc = value => {
     if (!value) return value;
     const _value = value + '';
     const _valueNumbers = onlyNumbers(_value);
@@ -12,3 +12,4 @@ export default value => {
     else
         return normalizeCpf(value);
 }
+export default normalizeDoc

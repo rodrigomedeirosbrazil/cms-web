@@ -1,4 +1,4 @@
-export default (viewValue) => {
+const normalizeCurrency = viewValue => {
     if (viewValue.length <= 3) {
         viewValue = '00' + viewValue;
     }
@@ -16,3 +16,5 @@ export default (viewValue) => {
 
     return plainNumber;
 }
+
+export default normalizeCurrency
