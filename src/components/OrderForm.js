@@ -183,8 +183,8 @@ const OrderForm = ({values, setValues, onSubmit, loading}) => {
                     {values.order_items && values.order_items.length > 0 ? (
                         <>
                         {values.order_items.map(
-                            item => (
-                                <OrderItem key={item.item.id} item={item} deleteItem={deleteItem} changeItem={changeItem} />
+                            (item, index) => (
+                                <OrderItem key={item.item.id+index} item={item} deleteItem={deleteItem} changeItem={changeItem} />
                             )
                         )}
                         </>
