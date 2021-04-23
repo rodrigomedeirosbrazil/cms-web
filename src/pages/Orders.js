@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLazyQuery, useMutation } from '@apollo/react-hooks';
 import gql from 'graphql-tag';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faEdit, faTrash, faPlusCircle } from '@fortawesome/free-solid-svg-icons'
+import { faEdit, faTrash, faPlusCircle, faSearch } from '@fortawesome/free-solid-svg-icons'
 import NumberFormat from 'react-number-format';
 import Moment from 'react-moment';
 import { LinkContainer as Link } from 'react-router-bootstrap'
@@ -28,6 +28,24 @@ const ORDERS = gql`
     }
 `;
 
+const ORDERS_BY_DESCRIPTION = gql`
+    query ($search: String!, $limit: Int!, $offset: Int!) {
+        orders_aggregate (where: {description: {_ilike: $search}, active: {_eq: true}}) {
+            aggregate {
+                totalCount: count
+            }
+        }
+        orders (where: {description: {_ilike: $search}, active: {_eq: true}}, order_by: {date_pickup: desc}, limit: $limit, offset: $offset) {
+            id, description, total, date_pickup, date_back
+            customer {
+                name
+            } 
+        }
+    }
+`;
+
+let ORDERS_GQL = ORDERS;
+
 const DELORDER = gql`
     mutation ($id: uuid!) {
         update_orders(where: {id: {_eq: $id}}, _set: {active: false}) {
@@ -39,16 +57,33 @@ const DELORDER = gql`
 export default function Orders ({ history }) {
     const [getPage, setPage] = useState(1);
     const limit = 15;
-    const [getOrders, { data, loading }] = useLazyQuery(ORDERS, {
+    const [getOrders, { data, loading }] = useLazyQuery(ORDERS_GQL, {
         fetchPolicy: "network-only"
     });
     const [showModal, setShowModal] = useState(false);
     const [value, setValue] = useState(false);
-    
+    const [search, setSearch] = useState('');
+
     useEffect(
         () => {
             getOrders({ variables: { limit: limit, offset: (getPage - 1) * limit } });
         },
+        [getPage, getOrders]
+    )
+
+    useEffect(
+        () => {
+            if (search !== '') {
+                ORDERS_GQL = ORDERS_BY_DESCRIPTION;
+                getOrders({ variables: { search: `%${search}%`, limit: limit, offset: (getPage - 1) * limit } });
+            }
+            else {
+                ORDERS_GQL = ORDERS;
+                getOrders({ variables: { limit: limit, offset: (getPage - 1) * limit } });
+            }
+
+        },
+        // eslint-disable-next-line
         [getPage, getOrders]
     )
 
@@ -83,6 +118,24 @@ export default function Orders ({ history }) {
         setShowModal(true);
     }
 
+    const handleSearch = (event) => {
+        setPage(1);
+        if (search !== '') {
+            ORDERS_GQL = ORDERS_BY_DESCRIPTION;
+            getOrders({ variables: { search: `%${search}%`, limit: limit, offset: (getPage - 1) * limit } });
+            const parsedQuery = qs.parse(history.location.search);
+            const newQueryString = qs.stringify({ ...parsedQuery, search, page: 1 });
+            history.push(`${history.location.pathname}?${newQueryString}`);
+        }
+        else {
+            ORDERS_GQL = ORDERS;
+            getOrders({ variables: { limit: limit, offset: (getPage - 1) * limit } });
+            const parsedQuery = qs.parse(history.location.search);
+            const newQueryString = qs.stringify({ ...parsedQuery, search: '' });
+            history.push(`${history.location.pathname}?${newQueryString}`);
+        }
+    }
+
     return (
         <>
         <Navbar></Navbar>
@@ -95,6 +148,29 @@ export default function Orders ({ history }) {
                         <div className="spinner-border" role="status"></div>
                     ) : (
                     <>
+                        <div className="row">
+                            <div className="col-md-8 offset-md-2">
+                                <div className="input-group mb-3">
+                                    <input
+                                        type="text"
+                                        className='form-control'
+                                        placeholder="Digite o tema de um pedido"
+                                        name="search"
+                                        value={search}
+                                        onChange={event => {
+                                            setSearch(event.target.value);
+                                        }}
+                                        onKeyPress={(e) => { e.key === 'Enter' && e.preventDefault() }}
+                                    />
+                                    <div className="input-group-append">
+                                        <button onClick={handleSearch} disabled={loading} type="button" className="btn btn-primary">
+                                            {loading ? (<div className="spinner-border spinner-border-sm" role="status"></div>)
+                                                : (<span><FontAwesomeIcon icon={faSearch} size="lg" /></span>)}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         {data && data.orders_aggregate && data.orders_aggregate.aggregate && data.orders_aggregate.aggregate.totalCount > 0 && (
                             <Pagination totalCount={data.orders_aggregate.aggregate.totalCount} page={getPage} changePage={setPage} limit={limit} history={history} />
                         )}
