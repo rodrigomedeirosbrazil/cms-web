@@ -60,6 +60,12 @@ const ItemPicker = ({ onChange, error, values }) => {
     
     }
 
+    const removeItem = indexItem => {
+        setItems(items.filter((item, index) => {
+            return indexItem !== index
+        }))
+    }
+
     return (
         <>
             <div className="input-group mb-3">
@@ -99,7 +105,7 @@ const ItemPicker = ({ onChange, error, values }) => {
                         </thead>
                         <tbody>
                         {items.map (
-                            item => (
+                            (item, index) => (
                                 <tr key={item.id} className={item.stock < 1 ? 'table-danger' : ''}>
                                     <td>
                                         <img alt={item.id} src={item.picture} className="img-thumbnail" width="100" />
@@ -126,6 +132,7 @@ const ItemPicker = ({ onChange, error, values }) => {
                                                 (event) => {
                                                     event.preventDefault();
                                                     onChange(item);
+                                                    removeItem(index);
                                                 }
                                             }
                                         >
