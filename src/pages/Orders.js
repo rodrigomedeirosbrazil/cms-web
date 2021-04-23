@@ -3,6 +3,7 @@ import { useLazyQuery, useMutation } from '@apollo/react-hooks';
 import gql from 'graphql-tag';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit, faTrash, faPlusCircle, faSearch } from '@fortawesome/free-solid-svg-icons'
+import { faCircle, faCheckCircle } from '@fortawesome/free-regular-svg-icons'
 import NumberFormat from 'react-number-format';
 import Moment from 'react-moment';
 import { LinkContainer as Link } from 'react-router-bootstrap'
@@ -44,6 +45,22 @@ const ORDERS_BY_DESCRIPTION = gql`
     }
 `;
 
+const ORDERS_BY_CUSTOMER = gql`
+    query ($search: String!, $limit: Int!, $offset: Int!) {
+        orders_aggregate (where: {customer: {name: {_ilike: $search}}, active: {_eq: true}}) {
+            aggregate {
+                totalCount: count
+            }
+        }
+        orders (where: {customer: {name: {_ilike: $search}}, active: {_eq: true}}, order_by: {date_pickup: desc}, limit: $limit, offset: $offset) {
+            id, description, total, date_pickup, date_back
+            customer {
+                name
+            } 
+        }
+    }
+`;
+
 let ORDERS_GQL = ORDERS;
 
 const DELORDER = gql`
@@ -63,6 +80,7 @@ export default function Orders ({ history }) {
     const [showModal, setShowModal] = useState(false);
     const [value, setValue] = useState(false);
     const [search, setSearch] = useState('');
+    const [searchType, setSearchType] = useState(0);
 
     useEffect(
         () => {
@@ -73,13 +91,17 @@ export default function Orders ({ history }) {
 
     useEffect(
         () => {
-            if (search !== '') {
+            if (search === '') {
+                ORDERS_GQL = ORDERS;
+                getOrders({ variables: { limit: limit, offset: (getPage - 1) * limit } });
+            }
+            else if (searchType === 0) {
                 ORDERS_GQL = ORDERS_BY_DESCRIPTION;
                 getOrders({ variables: { search: `%${search}%`, limit: limit, offset: (getPage - 1) * limit } });
             }
-            else {
-                ORDERS_GQL = ORDERS;
-                getOrders({ variables: { limit: limit, offset: (getPage - 1) * limit } });
+            else if (searchType === 1) {
+                ORDERS_GQL = ORDERS_BY_CUSTOMER;
+                getOrders({ variables: { search: `%${search}%`, limit: limit, offset: (getPage - 1) * limit } });
             }
 
         },
@@ -120,20 +142,21 @@ export default function Orders ({ history }) {
 
     const handleSearch = (event) => {
         setPage(1);
-        if (search !== '') {
-            ORDERS_GQL = ORDERS_BY_DESCRIPTION;
-            getOrders({ variables: { search: `%${search}%`, limit: limit, offset: (getPage - 1) * limit } });
-            const parsedQuery = qs.parse(history.location.search);
-            const newQueryString = qs.stringify({ ...parsedQuery, search, page: 1 });
-            history.push(`${history.location.pathname}?${newQueryString}`);
-        }
-        else {
+        if (search === '') {
             ORDERS_GQL = ORDERS;
             getOrders({ variables: { limit: limit, offset: (getPage - 1) * limit } });
-            const parsedQuery = qs.parse(history.location.search);
-            const newQueryString = qs.stringify({ ...parsedQuery, search: '' });
-            history.push(`${history.location.pathname}?${newQueryString}`);
         }
+        else if (searchType === 0) {
+            ORDERS_GQL = ORDERS_BY_DESCRIPTION;
+            getOrders({ variables: { search: `%${search}%`, limit: limit, offset: (getPage - 1) * limit } });
+        }
+        else if (searchType === 1) {
+            ORDERS_GQL = ORDERS_BY_CUSTOMER;
+            getOrders({ variables: { search: `%${search}%`, limit: limit, offset: (getPage - 1) * limit } });
+        }
+        const parsedQuery = qs.parse(history.location.search);
+        const newQueryString = qs.stringify({ ...parsedQuery, search: '' });
+        history.push(`${history.location.pathname}?${newQueryString}`);
     }
 
     return (
@@ -154,7 +177,7 @@ export default function Orders ({ history }) {
                                     <input
                                         type="text"
                                         className='form-control'
-                                        placeholder="Digite o tema de um pedido"
+                                        placeholder="Digite a busca"
                                         name="search"
                                         value={search}
                                         onChange={event => {
@@ -167,6 +190,14 @@ export default function Orders ({ history }) {
                                             {loading ? (<div className="spinner-border spinner-border-sm" role="status"></div>)
                                                 : (<span><FontAwesomeIcon icon={faSearch} size="lg" /></span>)}
                                         </button>
+                                    </div>
+                                </div>
+                                <div className="row mb-4">
+                                    <div className="col" onClick={() => setSearchType(0)}>
+                                        <span className="mr-2"><FontAwesomeIcon icon={searchType === 0 ? faCheckCircle : faCircle} size="lg" /></span>Por descrição
+                                    </div>
+                                    <div className="col" onClick={() => setSearchType(1)}>
+                                        <span className="mr-2"><FontAwesomeIcon icon={searchType === 1 ? faCheckCircle : faCircle} size="lg" /></span>Por cliente
                                     </div>
                                 </div>
                             </div>
