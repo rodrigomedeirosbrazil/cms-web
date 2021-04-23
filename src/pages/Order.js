@@ -1,13 +1,12 @@
-import React, { useState } from 'react';
-import { useQuery, useMutation } from '@apollo/react-hooks';
-import gql from 'graphql-tag';
+import React, { useState, useEffect } from 'react';
 import { useParams } from "react-router";
 
+import graphql from '../services/graphql'
 import Navbar from '../components/Navbar';
 import OrderForm from '../components/OrderForm';
 import Modal from '../components/Modal';
 
-const ORDER = gql`
+const ORDER = `
     query ($id: uuid!) {
         orders (where: { id: { _eq: $id } }) { 
             id
@@ -33,7 +32,7 @@ const ORDER = gql`
     }
 `;
 
-const UPDATE_ORDER = gql`
+const UPDATE_ORDER = `
     mutation (
         $id: uuid!
         $idn: numeric!
@@ -87,36 +86,34 @@ const UPDATE_ORDER = gql`
     }
 `;
 
-export default function Orders ({ history }) {
+const Order = ({history}) => {
     let { id } = useParams();
     const [values, setValues] = useState({});
     const [updated, setUpdated] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [loadingUpdate, setLoadingUpdate] = useState(false);
+    const [error, setError] = useState();
+    const [errorUpdate, setErrorUpdate] = useState(false);
 
-    const {data, error, loading} = 
-        useQuery(
-            ORDER, 
-            { 
-                variables: { id }, 
-                onCompleted: () => {
-                    if (data && data.orders.length === 1) {
-                        delete data.orders[0].__typename;
-                        setValues({...data.orders[0]});
-                    }
+    useEffect(
+        () => {
+            const getOrder = async () => {
+                setLoading(true);
+                const _data = await graphql(ORDER, { id });
+                setLoading(false);
+                if (_data && _data.orders.length > 0) {
+                    setValues({..._data.orders[0]});
+                } else {
+                    setError({ 'message': '' });
                 }
             }
-        );
-        
-    const [updateOrder, { loading: loadingUpdate, error: errorUpdate }] = 
-        useMutation(
-            UPDATE_ORDER, 
-            { 
-                onCompleted: () => {
-                    setUpdated(true);
-                }
-            }
-        );
+            getOrder();
+        },
+        [history, id]
+    )
+    
 
-    const onSubmit = (data) => {
+    const onSubmit = async (data) => {
         let _data = { ...data };
         delete _data.__typename;
         delete _data.customer;
@@ -134,7 +131,12 @@ export default function Orders ({ history }) {
             }
         );
 
-        updateOrder({ variables: _data }); 
+        setLoadingUpdate(true);
+        const retorno = await graphql(UPDATE_ORDER, _data);
+        setLoadingUpdate(false);
+        if (!retorno || !retorno.update_orders || retorno.update_orders.affected_rows === 0) {
+            setErrorUpdate({ message: '' })
+        } 
     }
 
     return (
@@ -151,7 +153,7 @@ export default function Orders ({ history }) {
         <div className="container-fluid">
             <div className="row" style={{ marginTop: 50 }}>
                 <div className="col-md-10 offset-md-1">
-                    <h2>Pedido: #{values.idn} </h2>
+                    <h2>Pedido: #{values?.idn} </h2>
                     {errorUpdate && (
                         <div className="alert alert-danger" role="alert">
                             Houve um erro durante a gravação: {errorUpdate.message}
@@ -170,3 +172,5 @@ export default function Orders ({ history }) {
         </>
     );
 }
+
+export default Order
