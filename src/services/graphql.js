@@ -2,7 +2,7 @@ import axios from 'axios';
 
 import { getAuth } from '../services/auth';
 
-const GRAPHQL_ENDPOINT = 'https://cms-medeirostec-hasura.herokuapp.com/v1/graphql';
+const GRAPHQL_ENDPOINT = 'https://cms-medeirostec.herokuapp.com/v1/graphql';
 
 const graphql = (query, variables = {}) => {
     const auth = getAuth();

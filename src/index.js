@@ -8,7 +8,7 @@ import { getAuth } from './services/auth';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-const httpLink = new HttpLink({ uri: 'https://cms-medeirostec-hasura.herokuapp.com/v1/graphql' });
+const httpLink = new HttpLink({ uri: 'https://cms-medeirostec.herokuapp.com/v1/graphql' });
 
 const authLink = new ApolloLink((operation, forward) => {
   const auth = getAuth();
