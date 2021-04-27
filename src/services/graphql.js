@@ -2,12 +2,13 @@ import axios from 'axios';
 
 import { getAuth } from '../services/auth';
 
-const GRAPHQL_ENDPOINT = 'https://cms-medeirostec.herokuapp.com/v1/graphql';
 
 const graphql = (query, variables = {}) => {
     const auth = getAuth();
 
-    return axios.post(GRAPHQL_ENDPOINT, {
+    return axios.post(
+        process.env.REACT_APP_BASE_URL + '/v1/graphql', 
+        {
         query,
         variables: {
             ...variables,

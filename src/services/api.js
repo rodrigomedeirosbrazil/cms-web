@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const api = axios.create(
     {
-        baseURL: 'https://cms-medeirostec.herokuapp.com'
+        baseURL: process.env.BASE_URL
     }
 );
 
