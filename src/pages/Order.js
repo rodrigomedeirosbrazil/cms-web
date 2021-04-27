@@ -38,7 +38,7 @@ const ORDER = `
 const UPDATE_ORDER = `
     mutation (
         $id: uuid!
-        $idn: numeric!
+        $idn: numeric
         $description: String, 
         $total: numeric!, 
         $discount: numeric!,
