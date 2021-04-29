@@ -302,6 +302,8 @@ const createOrderText = values => {
     text += `Total de peças: ${(values.order_items && values.order_items.length) || '0'}\n`
     if (values.discount && values.discount > 0) text += `Desconto: R$ ${values.discount}\n`
     text += `Total: R$ ${total(values)}\n`
+    text += `\nPagamentos via pix ou transferência, até a data da retirada das peças tem 10% de desconto.\n`
+    text += `\nPara reserva das peças é necessário que seja feito um sinal. Caso haja cancelamento ou desistência, o valor do sinal, fica como credito para uma próxima locação.\n`
     return text;
 }
 
