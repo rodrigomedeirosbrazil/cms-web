@@ -8,8 +8,32 @@ import CustomerForm from '../components/CustomerForm';
 import Modal from '../components/Modal';
 
 const NEWCUSTOMER = gql`
-    mutation ($id: uuid!, $name: String!, $email: String, $address: String, $city: String, $state: String, $zip: String) {
-        insert_customers(objects: {id: $id, name: $name, email: $email, address: $address, city: $city, state: $state, zip: $zip}) {
+    mutation (
+        $id: uuid!, 
+        $name: String!, 
+        $email: String, 
+        $address: String,
+        $doc: String,
+        $phone: String,
+        $city: String, 
+        $state: String,
+        $neighborhood: String,
+        $zip: String
+    ) {
+        insert_customers(
+            objects: {
+                id: $id, 
+                name: $name, 
+                email: $email, 
+                address: $address,
+                doc: $doc,
+                phone: $phone,
+                city: $city, 
+                state: $state, 
+                neighborhood: $neighborhood,
+                zip: $zip
+            }
+        ) {
           returning { id }
         }
     }
