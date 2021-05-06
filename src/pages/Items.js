@@ -114,7 +114,7 @@ export default function Items ({ history }) {
         setPage(1);
         if (search !== '') {
             ITEMS_GQL = ITEMS_BY_NAME;
-            getItems({ variables: { search: `%${search}%`, limit: limit, offset: (getPage - 1) * limit }});
+            getItems({ variables: { search: `%${search.replace(/\s/g, '%')}%`, limit: limit, offset: (getPage - 1) * limit }});
             const parsedQuery = qs.parse(history.location.search);
             const newQueryString = qs.stringify({ ...parsedQuery, search, page: 1 });
             history.push(`${history.location.pathname}?${newQueryString}`);

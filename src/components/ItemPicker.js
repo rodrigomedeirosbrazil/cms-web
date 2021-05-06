@@ -6,8 +6,8 @@ import NumberFormat from 'react-number-format';
 import graphql from '../services/graphql'
 
 const ITEMS = `
-    query ($name: String!) {
-        items (where: {name: {_ilike: $name}, active: {_eq: true}}, order_by: {name: asc}, limit: 10) { 
+    query ($name: String!, $limit: Int!, $offset: Int!) {
+        items (where: {name: {_ilike: $name}, active: {_eq: true}}, order_by: {name: asc}, limit: $limit, offset: $offset) { 
             id, idn, name, value, value_repo, quantity, picture
         }
     }
@@ -29,18 +29,24 @@ const STOCK = `
 
 
 const ItemPicker = ({ onChange, error, values }) => {
+    const limit = 3;
+    const [getPage, setPage] = useState(1);
     const [name, setName] = useState('');
     const [items, setItems] = useState([]);
     const [searchLoading, setSearchLoading] = useState(false);
 
-    const handleSearch = async (event) => {
-        event.preventDefault();
-        if(name !== '') {
+    const searchButtonClick = event => {
+        if (event) event.preventDefault();
+        handleSearch();
+    };
+
+    const handleSearch = async (page = 1) => {
+        if (name.trim() !== '') {
             setSearchLoading(true);
             try {
                 const _data = await graphql(
                     ITEMS,
-                    { name: `%${name}%` }
+                    { name: `%${name.replace(/\s/g, '%')}%`, limit: limit, offset: (page - 1) * limit }
                 );
 
                 if (values.date_pickup && values.date_back) {
@@ -81,7 +87,12 @@ const ItemPicker = ({ onChange, error, values }) => {
                     onKeyPress={(e) => { e.key === 'Enter' && e.preventDefault() }}
                 />
                 <div className="input-group-append">
-                    <button onClick={handleSearch} disabled={searchLoading} type="button" className="btn btn-primary">
+                    <button 
+                        onClick={searchButtonClick}
+                        disabled={searchLoading} 
+                        type="button" 
+                        className="btn btn-primary"
+                    >
                         {searchLoading ? (<div className="spinner-border spinner-border-sm" role="status"></div>)
                             : (<span><FontAwesomeIcon icon={faSearch} size="lg" /></span>)}
                     </button>
@@ -142,6 +153,25 @@ const ItemPicker = ({ onChange, error, values }) => {
                                 </tr>
                             )
                         )}
+                        <tr>
+                            <td colSpan={5} className="text-center">
+                                <button
+                                    type="button"
+                                    className="btn btn-outline-primary"
+                                    onClick={
+                                        (event) => {
+                                            event.preventDefault();
+                                            const page = getPage + 1;
+                                            setPage(page);
+                                            setItems([]);
+                                            handleSearch(page);
+                                        }
+                                    }
+                                >
+                                    <span>Carregar mais items</span>
+                                </button>
+                            </td>
+                        </tr>
                         </tbody>
                         </>
                     ) : name !== '' && items && (
