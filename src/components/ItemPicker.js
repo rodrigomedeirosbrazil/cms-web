@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import NumberFormat from 'react-number-format';
@@ -31,14 +31,20 @@ const STOCK = `
 const ItemPicker = ({ onChange, error, values }) => {
     const limit = 3;
     const [getPage, setPage] = useState(1);
-    const [name, setName] = useState('');
+    const [searchBox, setSearchBox] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
     const [items, setItems] = useState([]);
     const [searchLoading, setSearchLoading] = useState(false);
     
-    const handleSearch = useCallback(async (page=1) => {
+    useEffect(() => {
+        handleSearch();
+    // eslint-disable-next-line
+    }, [getPage, searchTerm])
+
+    const handleSearch = async () => {
         if (searchLoading) return;
 
-        if (name.trim() === '') {
+        if (searchTerm.trim() === '') {
             setItems([]);
             return;
         }
@@ -48,7 +54,7 @@ const ItemPicker = ({ onChange, error, values }) => {
         try {
             const _data = await graphql(
                 ITEMS,
-                { name: `%${name.replace(/\s/g, '%')}%`, limit: limit, offset: (page - 1) * limit }
+                { name: `%${searchTerm.replace(/\s/g, '%')}%`, limit: limit, offset: (getPage - 1) * limit }
             );
 
             if (values.date_pickup && values.date_back) {
@@ -63,13 +69,7 @@ const ItemPicker = ({ onChange, error, values }) => {
         }
 
         setSearchLoading(false);
-    // eslint-disable-next-line
-    }, [searchLoading, getPage, name])
-
-    const searchButtonClick = event => {
-        if (event) event.preventDefault();
-        handleSearch(1);
-    };
+    }
 
     const removeItem = indexItem => {
         setItems(items.filter((item, index) => {
@@ -85,15 +85,19 @@ const ItemPicker = ({ onChange, error, values }) => {
                     className={error ? 'form-control is-invalid' : 'form-control' }
                     placeholder="Digite o nome de um produto"
                     name="name"
-                    value={name}
+                    value={searchBox}
                     onChange={ event => {
-                        setName(event.target.value);
+                        setSearchBox(event.target.value);
                     } }
                     onKeyPress={(e) => { e.key === 'Enter' && e.preventDefault() }}
                 />
                 <div className="input-group-append">
                     <button 
-                        onClick={searchButtonClick}
+                        onClick={ event => { 
+                            event.preventDefault();
+                            setPage(1);
+                            setSearchTerm(searchBox);
+                        }}
                         disabled={searchLoading} 
                         type="button" 
                         className="btn btn-primary"
@@ -166,10 +170,8 @@ const ItemPicker = ({ onChange, error, values }) => {
                                     onClick={
                                         (event) => {
                                             event.preventDefault();
-                                            const page = getPage + 1;
-                                            setPage(page);
+                                            setPage(getPage + 1);
                                             setItems([]);
-                                            handleSearch(page);
                                         }
                                     }
                                 >
@@ -179,12 +181,21 @@ const ItemPicker = ({ onChange, error, values }) => {
                         </tr>
                         </tbody>
                         </>
-                    ) : name !== '' && items && (
+                    ) : searchTerm !== '' && items && !searchLoading && (
                         <tbody>
                             <tr>
                                 <td colSpan={5}>Nada encontrado</td>
                             </tr>
                         </tbody>
+                    )}
+                    {searchLoading && (
+                    <tbody>
+                        <tr>
+                            <td colSpan={5} className="text-center">
+                                <div className="spinner-border spinner-border-lg" role="status"></div>
+                            </td>
+                        </tr>
+                    </tbody>
                     )}
                 </table>
             </div>
