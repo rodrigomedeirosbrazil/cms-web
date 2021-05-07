@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import NumberFormat from 'react-number-format';
@@ -34,37 +34,42 @@ const ItemPicker = ({ onChange, error, values }) => {
     const [name, setName] = useState('');
     const [items, setItems] = useState([]);
     const [searchLoading, setSearchLoading] = useState(false);
+    
+    const handleSearch = useCallback(async (page=1) => {
+        if (searchLoading) return;
+
+        if (name.trim() === '') {
+            setItems([]);
+            return;
+        }
+
+        setSearchLoading(true);
+
+        try {
+            const _data = await graphql(
+                ITEMS,
+                { name: `%${name.replace(/\s/g, '%')}%`, limit: limit, offset: (page - 1) * limit }
+            );
+
+            if (values.date_pickup && values.date_back) {
+                setItems(await getStock(_data.items, values.id, values.date_pickup, values.date_back));
+            } else {
+                setItems(_data.items);
+            }
+
+        } catch (error) {
+            console.log('erro', error);
+            setItems([]);
+        }
+
+        setSearchLoading(false);
+    // eslint-disable-next-line
+    }, [searchLoading, getPage, name])
 
     const searchButtonClick = event => {
         if (event) event.preventDefault();
-        handleSearch();
+        handleSearch(1);
     };
-
-    const handleSearch = async (page = 1) => {
-        if (name.trim() !== '') {
-            setSearchLoading(true);
-            try {
-                const _data = await graphql(
-                    ITEMS,
-                    { name: `%${name.replace(/\s/g, '%')}%`, limit: limit, offset: (page - 1) * limit }
-                );
-
-                if (values.date_pickup && values.date_back) {
-                    setItems(await getStock(_data.items, values.id, values.date_pickup, values.date_back));
-                } else {
-                    setItems(_data.items);
-                }
-                
-            } catch (error) {
-                console.log('erro', error);
-                setItems([]);
-            }
-            setSearchLoading(false);
-        } else {
-            setItems([]);
-        }
-    
-    }
 
     const removeItem = indexItem => {
         setItems(items.filter((item, index) => {
@@ -168,7 +173,7 @@ const ItemPicker = ({ onChange, error, values }) => {
                                         }
                                     }
                                 >
-                                    <span>Carregar mais items</span>
+                                    <span>Carregar mais itens</span>
                                 </button>
                             </td>
                         </tr>
