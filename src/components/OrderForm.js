@@ -244,7 +244,7 @@ const OrderForm = ({values, setValues, onSubmit, loading}) => {
                         renderText={value => value}
                     />
                     <br />
-                    Peças: {values && values.order_items ? values.order_items.length: '0'}
+                    Peças: {values ? totalItems(values): '0'}
                 </div>
             </div>
             <button type="submit" disabled={loading} className="btn btn-primary btn-block">
@@ -281,6 +281,15 @@ const total = values => {
     return _total - (values.discount ?? 0);
 }
 
+const totalItems = values => {
+    const _total = values.order_items
+        ? values.order_items.reduce((sum, i) => (
+            sum += Number(i.quantity)
+        ), 0)
+        : 0
+    return _total;
+}
+
 const createOrderText = values => {
     const days = moment(values.date_back).diff(moment(values.date_pickup), 'days')
     const date_pickup = moment(values.date_pickup).format('DD/MM/YYYY')
@@ -299,7 +308,7 @@ const createOrderText = values => {
             text += `${item.item.name} x${item.quantity}: R$ ${item.value}\n`
         }
     )
-    text += `Total de peças: ${(values.order_items && values.order_items.length) || '0'}\n`
+    text += `Total de peças: ${(values.order_items && totalItems(values)) || '0'}\n`
     if (values.discount && values.discount > 0) text += `Desconto: R$ ${values.discount}\n`
     text += `Total: R$ ${total(values)}\n`
     text += `\nPagamentos via pix ou transferência, até a data da retirada das peças tem 10% de desconto.\n`
