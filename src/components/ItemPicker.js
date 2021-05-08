@@ -35,6 +35,7 @@ const ItemPicker = ({ onChange, error, values }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [items, setItems] = useState([]);
     const [searchLoading, setSearchLoading] = useState(false);
+    const [loadMore, setLoadMore] = useState(false);
     
     useEffect(() => {
         handleSearch();
@@ -56,11 +57,15 @@ const ItemPicker = ({ onChange, error, values }) => {
                 ITEMS,
                 { name: `%${searchTerm.replace(/\s/g, '%')}%`, limit: limit, offset: (getPage - 1) * limit }
             );
+            
+            setLoadMore(true);
 
-            if (values.date_pickup && values.date_back) {
-                setItems(await getStock(_data.items, values.id, values.date_pickup, values.date_back));
+            if (_data.items.length === 0) {
+                setLoadMore(false);
+            } else if (values.date_pickup && values.date_back) {
+                setItems([...items, ...await getStock(_data.items, values.id, values.date_pickup, values.date_back)]);
             } else {
-                setItems(_data.items);
+                setItems([...items, ..._data.items]);
             }
 
         } catch (error) {
@@ -96,6 +101,7 @@ const ItemPicker = ({ onChange, error, values }) => {
                         onClick={ event => { 
                             event.preventDefault();
                             setPage(1);
+                            setItems([]);
                             setSearchTerm(searchBox);
                         }}
                         disabled={searchLoading} 
@@ -162,23 +168,24 @@ const ItemPicker = ({ onChange, error, values }) => {
                                 </tr>
                             )
                         )}
-                        <tr>
-                            <td colSpan={5} className="text-center">
-                                <button
-                                    type="button"
-                                    className="btn btn-outline-primary"
-                                    onClick={
-                                        (event) => {
-                                            event.preventDefault();
-                                            setPage(getPage + 1);
-                                            setItems([]);
+                        {loadMore && (
+                            <tr>
+                                <td colSpan={5} className="text-center">
+                                    <button
+                                        type="button"
+                                        className="btn btn-outline-primary"
+                                        onClick={
+                                            (event) => {
+                                                event.preventDefault();
+                                                setPage(getPage + 1);
+                                            }
                                         }
-                                    }
-                                >
-                                    <span>Carregar mais itens</span>
-                                </button>
-                            </td>
-                        </tr>
+                                    >
+                                        <span>Carregar mais itens</span>
+                                    </button>
+                                </td>
+                            </tr>
+                        )}
                         </tbody>
                         </>
                     ) : searchTerm !== '' && items && !searchLoading && (
