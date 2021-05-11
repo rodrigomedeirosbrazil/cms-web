@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useLazyQuery, useMutation } from '@apollo/react-hooks';
-import gql from 'graphql-tag';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit, faTrash, faPlusCircle, faSearch } from '@fortawesome/free-solid-svg-icons'
 import { faCircle, faCheckCircle } from '@fortawesome/free-regular-svg-icons'
@@ -9,11 +7,13 @@ import Moment from 'react-moment';
 import { LinkContainer as Link } from 'react-router-bootstrap'
 import qs from 'query-string';
 
+import graphql from '../services/graphql'
+
 import Navbar from '../components/Navbar';
 import Modal from '../components/Modal';
 import Pagination from '../components/Pagination';
 
-const ORDERS = gql`
+const ORDERS = `
     query ($limit: Int!, $offset: Int!) {
         orders_aggregate (where: {active: {_eq: true}}) {
             aggregate {
@@ -29,7 +29,7 @@ const ORDERS = gql`
     }
 `;
 
-const ORDERS_BY_DESCRIPTION = gql`
+const ORDERS_BY_DESCRIPTION = `
     query ($search: String!, $limit: Int!, $offset: Int!) {
         orders_aggregate (where: {description: {_ilike: $search}, active: {_eq: true}}) {
             aggregate {
@@ -45,7 +45,7 @@ const ORDERS_BY_DESCRIPTION = gql`
     }
 `;
 
-const ORDERS_BY_CUSTOMER = gql`
+const ORDERS_BY_CUSTOMER = `
     query ($search: String!, $limit: Int!, $offset: Int!) {
         orders_aggregate (where: {customer: {name: {_ilike: $search}}, active: {_eq: true}}) {
             aggregate {
@@ -63,7 +63,7 @@ const ORDERS_BY_CUSTOMER = gql`
 
 let ORDERS_GQL = ORDERS;
 
-const DELORDER = gql`
+const DELORDER = `
     mutation ($id: uuid!) {
         update_orders(where: {id: {_eq: $id}}, _set: {active: false}) {
             affected_rows
@@ -74,40 +74,59 @@ const DELORDER = gql`
 export default function Orders ({ history }) {
     const [getPage, setPage] = useState(1);
     const limit = 15;
-    const [getOrders, { data, loading }] = useLazyQuery(ORDERS_GQL, {
-        fetchPolicy: "network-only"
-    });
     const [showModal, setShowModal] = useState(false);
     const [value, setValue] = useState(false);
     const [search, setSearch] = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
     const [searchType, setSearchType] = useState(0);
+    const [loading, setLoading] = useState(false);
+    const [data, setData] = useState({});
+
+    const handleFetch = async () => {
+        let params = {};
+
+        if (search === '') {
+            ORDERS_GQL = ORDERS;
+            params = { limit: limit, offset: (getPage - 1) * limit }
+        }
+        else if (searchType === 0) {
+            ORDERS_GQL = ORDERS_BY_DESCRIPTION;
+            params = { search: `%${search}%`, limit: limit, offset: (getPage - 1) * limit }
+        }
+        else if (searchType === 1) {
+            ORDERS_GQL = ORDERS_BY_CUSTOMER;
+            params = { search: `%${search}%`, limit: limit, offset: (getPage - 1) * limit }
+        }
+
+        setLoading(true);
+
+        const _data = await graphql(ORDERS_GQL, params);
+
+        if (_data.orders) {
+            const orders = _data.orders.reduce((groups, item) => {
+                const date = item.date_pickup;
+                if (!groups[date]) {
+                    groups[date] = [];
+                }
+                groups[date].push(item);
+                return groups;
+            }, [])
+
+            const newData = { ..._data, orders }
+            setData(newData);
+        }
+
+        setLoading(false);
+    }
 
     useEffect(
         () => {
-            getOrders({ variables: { limit: limit, offset: (getPage - 1) * limit } });
-        },
-        [getPage, getOrders]
-    )
-
-    useEffect(
-        () => {
-            if (search === '') {
-                ORDERS_GQL = ORDERS;
-                getOrders({ variables: { limit: limit, offset: (getPage - 1) * limit } });
-            }
-            else if (searchType === 0) {
-                ORDERS_GQL = ORDERS_BY_DESCRIPTION;
-                getOrders({ variables: { search: `%${search}%`, limit: limit, offset: (getPage - 1) * limit } });
-            }
-            else if (searchType === 1) {
-                ORDERS_GQL = ORDERS_BY_CUSTOMER;
-                getOrders({ variables: { search: `%${search}%`, limit: limit, offset: (getPage - 1) * limit } });
-            }
-
+            handleFetch();
         },
         // eslint-disable-next-line
-        [getPage, getOrders]
+        [getPage, searchQuery]
     )
+
 
     useEffect(
         () => {
@@ -117,22 +136,15 @@ export default function Orders ({ history }) {
             } else {
                 setPage(1);
             }
+            handleFetch();
         },
+        // eslint-disable-next-line
         [history]
     )
 
-    const [delOrder] =
-        useMutation(
-            DELORDER,
-            {
-                onCompleted: () => {
-                    history.go(0);
-                }
-            }
-        );
-
-    const deleteOrder = () => {
-        delOrder({ variables: { id: value } });
+    const deleteOrder =  async () => {
+        await graphql(DELORDER, { id: value });
+        handleFetch();
     }
 
     const showModalDelete = (id) => {
@@ -142,21 +154,10 @@ export default function Orders ({ history }) {
 
     const handleSearch = (event) => {
         setPage(1);
-        if (search === '') {
-            ORDERS_GQL = ORDERS;
-            getOrders({ variables: { limit: limit, offset: (getPage - 1) * limit } });
-        }
-        else if (searchType === 0) {
-            ORDERS_GQL = ORDERS_BY_DESCRIPTION;
-            getOrders({ variables: { search: `%${search}%`, limit: limit, offset: (getPage - 1) * limit } });
-        }
-        else if (searchType === 1) {
-            ORDERS_GQL = ORDERS_BY_CUSTOMER;
-            getOrders({ variables: { search: `%${search}%`, limit: limit, offset: (getPage - 1) * limit } });
-        }
         const parsedQuery = qs.parse(history.location.search);
         const newQueryString = qs.stringify({ ...parsedQuery, search: '' });
         history.push(`${history.location.pathname}?${newQueryString}`);
+        setSearchQuery(search);
     }
 
     return (
@@ -212,36 +213,41 @@ export default function Orders ({ history }) {
                                         <th>Cliente</th>
                                         <th>Descrição</th>
                                         <th>Total</th>
-                                        <th>Data retirada</th>
                                         <th>Data devolução</th>
                                         <th>Ações</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                {data && data.orders && data.orders.length > 0 ? data.orders.map( 
-                                    item => (
-                                        <tr key={item.id}>
-                                            <td>{ item.customer.name }</td>
-                                            <td>{ item.description }</td>
-                                            <td>
-                                                <NumberFormat
-                                                    value={item.total}
-                                                    displayType={'text'}
-                                                    thousandSeparator={'.'}
-                                                    decimalSeparator={','}
-                                                    prefix={'R$'}
-                                                    decimalScale={2}
-                                                    fixedDecimalScale={true}
-                                                    renderText={value => value}
-                                                />
-                                            </td>
-                                            <td><Moment format="DD/MM/YYYY">{item.date_pickup}</Moment></td>
-                                            <td><Moment format="DD/MM/YYYY">{item.date_back}</Moment></td>
-                                            <td>
-                                                <Link to={'/order/' + item.id} className="btn btn-primary ml-1"><span><FontAwesomeIcon icon={faEdit} size="sm" /></span></Link>
-                                                <button onClick={ () => showModalDelete(item.id)} className="btn btn-danger ml-1"><span><FontAwesomeIcon icon={faTrash} size="sm" /></span></button>
-                                            </td>
-                                        </tr>
+                                {data && data.orders ? Object.keys(data.orders).map(
+                                    date => (
+                                        <React.Fragment key={date}>
+                                            <tr><th colSpan="5" className="table-primary"><Moment format="DD/MM/YYYY">{date}</Moment></th></tr>
+                                            { data.orders[date].map(
+                                                item => (
+                                                    <tr key={item.id}>
+                                                        <td>{item.customer.name}</td>
+                                                        <td>{item.description}</td>
+                                                        <td>
+                                                            <NumberFormat
+                                                                value={item.total}
+                                                                displayType={'text'}
+                                                                thousandSeparator={'.'}
+                                                                decimalSeparator={','}
+                                                                prefix={'R$'}
+                                                                decimalScale={2}
+                                                                fixedDecimalScale={true}
+                                                                renderText={value => value}
+                                                            />
+                                                        </td>
+                                                        <td><Moment format="DD/MM/YYYY">{item.date_back}</Moment></td>
+                                                        <td>
+                                                            <Link to={'/order/' + item.id} className="btn btn-primary ml-1"><span><FontAwesomeIcon icon={faEdit} size="sm" /></span></Link>
+                                                            <button onClick={() => showModalDelete(item.id)} className="btn btn-danger ml-1"><span><FontAwesomeIcon icon={faTrash} size="sm" /></span></button>
+                                                        </td>
+                                                    </tr>
+                                                )
+                                            )}
+                                        </React.Fragment>
                                     )
                                 ) : (
                                 <tr>
