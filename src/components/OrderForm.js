@@ -12,6 +12,10 @@ import OrderItem from '../components/OrderItem';
 import MoneyInput from '../components/MoneyInput';
 import Receipt from '../components/Receipt';
 
+const normalizeToCurrency = number => {
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(number)
+}
+
 const OrderForm = ({values, setValues, onSubmit, loading}) => {
     const [errors, setErrors] = useState();
     const [orderText, setOrderText] = useState('');
@@ -305,13 +309,14 @@ const createOrderText = values => {
     text += `Produtos:\n`
     values.order_items && values.order_items.forEach(
         item => {
-            text += `${item.item.name} x${item.quantity}: R$ ${item.value}\n`
+            text += `${normalizeToCurrency(item.value)} x${item.quantity} - ${item.item.name} \n`
         }
     )
     text += `Total de peças: ${(values.order_items && totalItems(values)) || '0'}\n`
-    if (values.discount && values.discount > 0) text += `Desconto: R$ ${values.discount}\n`
-    text += `Total: R$ ${total(values)}\n`
-    text += `\nPagamentos via pix ou transferência, até a data da retirada das peças tem 10% de desconto.\n`
+    text += `Valor Total: ${normalizeToCurrency(total(values) + ((values.discount && values.discount > 0) ? values.discount: 0))}\n`
+    if (values.discount && values.discount > 0) text += `Valor do Desconto: ${normalizeToCurrency(values.discount)}\n`
+    text += `Valor Final: ${normalizeToCurrency(total(values))}\n`
+    text += `\nO Desconto apresentado deverá ser considerado em pagamentos via pix ou transferência, até a data da retirada das peças.\n`
     text += `\nPara reserva das peças é necessário que seja feito um sinal. Caso haja cancelamento ou desistência, o valor do sinal, fica como credito para uma próxima locação.\n`
     return text;
 }

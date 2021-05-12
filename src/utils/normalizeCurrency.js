@@ -1,4 +1,6 @@
-const normalizeCurrency = viewValue => {
+const normalizeCurrency = viewValueParam => {
+
+    let viewValue = String(viewValueParam)
     if (viewValue.length <= 3) {
         viewValue = '00' + viewValue;
     }
