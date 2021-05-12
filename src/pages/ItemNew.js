@@ -52,7 +52,7 @@ const NEWITEM = gql`
 `;
 
 export default function ItemNew({ history }) {
-    const [values, setValues] = useState({});
+    const [values, setValues] = useState({quantity: 1});
     const [showModal, setShowModal] = useState(false);
 
     const [newItem, { loading, error }] = 
