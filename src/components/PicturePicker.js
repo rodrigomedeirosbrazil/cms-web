@@ -2,8 +2,15 @@ import React, { useState, useCallback } from 'react';
 import Cropper from 'react-easy-crop'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUndo } from '@fortawesome/free-solid-svg-icons';
+import { getOrientation } from 'get-orientation/browser'
 
-import getCroppedImg from './cropImage'
+import { getCroppedImg, getRotatedImage, resizeImage } from './cropImage'
+
+const ORIENTATION_TO_ANGLE = {
+    '3': 180,
+    '6': 90,
+    '8': -90,
+}
 
 const PicturePicker = ({ name, src, onChange, mime, compress }) => {
     const [crop, setCrop] = useState({ x: 0, y: 0 })
@@ -22,7 +29,6 @@ const PicturePicker = ({ name, src, onChange, mime, compress }) => {
                 imgSrc,
                 croppedAreaPixels,
                 rotation,
-                160, 160,
                 mime ? mime : null,
                 compress ? compress : null
             )
@@ -41,14 +47,33 @@ const PicturePicker = ({ name, src, onChange, mime, compress }) => {
     }, [croppedAreaPixels, rotation, imgSrc, name, onChange, mime, compress])
 
     const onFileChange = async e => {
-        if (e.target.files && e.target.files.length > 0) {
-            const imageDataUrl = await readFile(e.target.files[0])
-            setImgSrc(imageDataUrl);
-            editImage();
+        if (!e.target.files || e.target.files.length <= 0) return;
+
+        const file = e.target.files[0]
+        let imageDataUrl = await readFile(file)
+
+        const orientation = await getOrientation(file)
+        const rotation = ORIENTATION_TO_ANGLE[orientation]
+
+        if (rotation) {
+            imageDataUrl = await getRotatedImage(imageDataUrl, rotation)
         }
+
+        imageDataUrl = await resizeImage(imageDataUrl, 1024, 1024)
+
+        setImgSrc(imageDataUrl);
+        editImage();
     }
 
     const editImage = () => {
+        const returnEvent = {
+            target: {
+                name,
+                value: ''
+            }
+        }
+        onChange(returnEvent);
+
         setZoom(1);
         setCrop({ x: 0, y: 0 });
         setEditing(true);

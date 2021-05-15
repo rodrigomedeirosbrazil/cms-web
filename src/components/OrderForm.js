@@ -309,7 +309,7 @@ const createOrderText = values => {
     text += `Produtos:\n`
     values.order_items && values.order_items.forEach(
         item => {
-            text += `${normalizeToCurrency(item.value)} x${item.quantity} - ${item.item.name} \n`
+            text += `${normalizeToCurrency(item.value)} x ${item.quantity} - ${item.item.name} \n`
         }
     )
     text += `Total de peças: ${(values.order_items && totalItems(values)) || '0'}\n`
