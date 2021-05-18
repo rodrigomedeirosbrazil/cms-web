@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave, faTrash, faClipboard, faReceipt } from '@fortawesome/free-solid-svg-icons';
 import NumberFormat from 'react-number-format';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
 import moment from 'moment';
 import 'moment/locale/pt-br'; 
+import copy from 'copy-to-clipboard';
 
 import CustomerPicker from '../components/CustomerPicker';
 import ItemPicker from '../components/ItemPicker';
@@ -18,15 +18,7 @@ const normalizeToCurrency = number => {
 
 const OrderForm = ({values, setValues, onSubmit, loading}) => {
     const [errors, setErrors] = useState();
-    const [orderText, setOrderText] = useState('');
     const [loadingReceipt, setLoadingReceipt] = useState(false);
-
-    useEffect(
-        () => {
-            setOrderText(createOrderText(values));
-        },
-        [values]
-    )
 
     const receiptGenerate = async () => {
         setLoadingReceipt(true);
@@ -263,14 +255,15 @@ const OrderForm = ({values, setValues, onSubmit, loading}) => {
                     &nbsp;Recibo
                 </button>
             )}
-            <CopyToClipboard 
-                text={orderText}
+            <button type="button" className="btn btn-info btn-block"
+                onClick={(e) => {
+                    e.preventDefault();
+                    copy(createOrderText(values));
+                }}
             >
-                <button type="button" className="btn btn-info btn-block">
-                    <span><FontAwesomeIcon icon={faClipboard} size="lg" /></span>
-                    &nbsp;Copiar pedido para a memória
-                </button>
-            </CopyToClipboard>
+                <span><FontAwesomeIcon icon={faClipboard} size="lg" /></span>
+                &nbsp;Copiar pedido para a memória
+            </button>
 
         </form>
     )  
@@ -316,6 +309,8 @@ const createOrderText = values => {
     text += `Valor Total: ${normalizeToCurrency(total(values) + ((values.discount && values.discount > 0) ? values.discount: 0))}\n`
     if (values.discount && values.discount > 0) text += `Valor do Desconto: ${normalizeToCurrency(values.discount)}\n`
     text += `Valor Final: ${normalizeToCurrency(total(values))}\n`
+    if (values.deposit && values.deposit > 0) text += `Valor do Sinal: ${normalizeToCurrency(values.deposit)}\n`
+    text += `*Valor a pagar: ${normalizeToCurrency(total(values) - values.deposit)}*\n`
     text += `\nO Desconto apresentado deverá ser considerado em pagamentos via pix ou transferência, até a data da retirada das peças.\n`
     text += `\nPara reserva das peças é necessário que seja feito um sinal. Caso haja cancelamento ou desistência, o valor do sinal, fica como credito para uma próxima locação.\n`
     return text;
