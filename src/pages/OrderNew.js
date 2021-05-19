@@ -46,6 +46,7 @@ const NEWORDER = gql`
 export default function OrderNew({ history, location }) {
     const [values, setValues] = useState({ discount: 0, deposit: 0, total: 0 });
     const [showModal, setShowModal] = useState(false);
+    const [id, setId] = useState();
 
     useEffect(
         () => {
@@ -61,7 +62,8 @@ export default function OrderNew({ history, location }) {
         useMutation(
             NEWORDER, 
             { 
-                onCompleted: () => {
+                onCompleted: (data) => {
+                    setId(data.insert_orders.returning[0].id);
                     setShowModal(true);
                     setValues({});
                 }
@@ -117,7 +119,7 @@ export default function OrderNew({ history, location }) {
                 header="Sucesso" 
                 body="Dados foram gravados com sucesso!" 
                 showCancel={false} 
-                onClose={ () => history.push('/orders') } 
+                onClose={ () => history.push(`/order/${id}`) } 
             />
             
             <div className="container-fluid">
