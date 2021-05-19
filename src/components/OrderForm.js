@@ -166,16 +166,16 @@ const OrderForm = ({values, setValues, onSubmit, loading}) => {
                     )}
                 </div>
             </div>
+            <ItemPicker
+                onChange={addItem}
+                error={errors && errors.order_items}
+                values={values}
+            />
             <div className="card mb-3">
                 <div className="card-header">
                     Produtos
                 </div>
-                <div className="card-body">
-                    <ItemPicker
-                        onChange={addItem}
-                        error={errors && errors.order_items}
-                        values={values}
-                    />
+                <div className="card-body p-1">
                     {values.order_items && values.order_items.length > 0 ? (
                         <>
                         {values.order_items.map(

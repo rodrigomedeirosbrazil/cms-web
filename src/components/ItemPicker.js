@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
-import NumberFormat from 'react-number-format';
+import { faSearch } from '@fortawesome/free-solid-svg-icons';
 
+import ItemPickerItem from './ItemPickerItem'
 import graphql from '../services/graphql'
+
 
 const ITEMS = `
     query ($name: String!, $limit: Int!, $offset: Int!) {
@@ -116,96 +117,37 @@ const ItemPicker = ({ onChange, error, values }) => {
                     {error}
                 </div>
             </div>
-            <div className="table-responsive">
-                <table className="table table-sm table-striped">
-                    { items && items.length > 0 ? (
-                        <>
-                        <thead className="thead-dark">
-                            <tr>
-                                <th></th>
-                                <th></th>
-                                <th>Qnt/Estoque</th>
-                                <th>Valor</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        {items.map (
-                            (item, index) => (
-                                <tr key={item.id} className={item.stock < 1 ? 'table-danger' : ''}>
-                                    <td>
-                                        <img alt={item.id} src={item.picture} className="img-thumbnail" width="100" />
-                                    </td>
-                                    <td>{item.name} #{item.idn}</td>
-                                    <td>{item.quantity}/{item.stock}</td>
-                                    <td>
-                                        <NumberFormat 
-                                            value={item.value} 
-                                            displayType={'text'} 
-                                            thousandSeparator={'.'} 
-                                            decimalSeparator={','} 
-                                            prefix={'R$'} 
-                                            decimalScale={2}
-                                            fixedDecimalScale={true}
-                                            renderText={value => value}
-                                        />
-                                    </td>
-                                    <td>
-                                        <button 
-                                            type="button" 
-                                            className="btn btn-primary btn-sm" 
-                                            onClick={
-                                                (event) => {
-                                                    event.preventDefault();
-                                                    onChange(item);
-                                                    removeItem(index);
-                                                }
-                                            }
-                                        >
-                                            <span><FontAwesomeIcon icon={faPlusCircle} size="lg" /></span>
-                                        </button>
-                                    </td>
-                                </tr>
-                            )
-                        )}
-                        {loadMore && (
-                            <tr>
-                                <td colSpan={5} className="text-center">
-                                    <button
-                                        type="button"
-                                        className="btn btn-outline-primary"
-                                        onClick={
-                                            (event) => {
-                                                event.preventDefault();
-                                                setPage(getPage + 1);
-                                            }
-                                        }
-                                    >
-                                        <span>Carregar mais itens</span>
-                                    </button>
-                                </td>
-                            </tr>
-                        )}
-                        </tbody>
-                        </>
-                    ) : searchTerm !== '' && items && !searchLoading && (
-                        <tbody>
-                            <tr>
-                                <td colSpan={5}>Nada encontrado</td>
-                            </tr>
-                        </tbody>
-                    )}
-                    {searchLoading && (
-                    <tbody>
-                        <tr>
-                            <td colSpan={5} className="text-center">
-                                <div className="spinner-border spinner-border-lg" role="status"></div>
-                            </td>
-                        </tr>
-                    </tbody>
-                    )}
-                </table>
-            </div>
+            { items && items.length > 0 ? (
+                items.map(
+                    (item, index) => (
+                        <ItemPickerItem key={item.id} item={item} index={index} onChange={onChange} removeItem={removeItem}/>
+                ))
+            ) : searchTerm !== '' && items && !searchLoading && !loadMore && (
+                <div className="text-center mb-2">
+                    <span>Nada encontrado</span>
+                </div>
+            )}
+            {loadMore && (
+                <div className="text-center mb-2">
+                    <button
+                        type="button"
+                        className="btn btn-outline-primary"
+                        onClick={
+                            (event) => {
+                                event.preventDefault();
+                                setPage(getPage + 1);
+                            }
+                        }
+                    >
+                        <span>Carregar mais itens</span>
+                    </button>
+                </div>
+            )}
+            {searchLoading && (
+                <div className="text-center mb-2">
+                    <div className="spinner-border spinner-border-lg" role="status"></div>
+                </div>
+            )}
         </>
     )  
 }
