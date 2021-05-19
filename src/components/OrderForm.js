@@ -230,7 +230,7 @@ const OrderForm = ({values, setValues, onSubmit, loading}) => {
                     />
                     &nbsp; - Total a pagar:&nbsp;
                     <NumberFormat
-                        value={total(values) - values.deposit}
+                        value={total(values) - Number(values.deposit)}
                         displayType={'text'}
                         thousandSeparator={'.'}
                         decimalSeparator={','}
@@ -272,10 +272,10 @@ const OrderForm = ({values, setValues, onSubmit, loading}) => {
 const total = values => {
     const _total = values.order_items
         ? values.order_items.reduce((sum, i) => (
-            sum += i.quantity * i.value
+            sum += Number(i.quantity) * Number(i.value)
         ), 0)
         : 0
-    return _total - (values.discount ?? 0);
+    return _total - (Number(values.discount) ?? 0);
 }
 
 const totalItems = values => {
@@ -306,11 +306,11 @@ const createOrderText = values => {
         }
     )
     text += `Total de peças: ${(values.order_items && totalItems(values)) || '0'}\n`
-    text += `Valor Total: ${normalizeToCurrency(total(values) + ((values.discount && values.discount > 0) ? values.discount: 0))}\n`
+    text += `Valor Total: ${normalizeToCurrency(total(values) + ((values.discount && values.discount > 0) ? Number(values.discount): 0))}\n`
     if (values.discount && values.discount > 0) text += `Valor do Desconto: ${normalizeToCurrency(values.discount)}\n`
     text += `Valor Final: ${normalizeToCurrency(total(values))}\n`
     if (values.deposit && values.deposit > 0) text += `Valor do Sinal: ${normalizeToCurrency(values.deposit)}\n`
-    text += `*Valor a pagar: ${normalizeToCurrency(total(values) - values.deposit)}*\n`
+    text += `*Valor a pagar: ${normalizeToCurrency(total(values) - Number(values.deposit))}*\n`
     text += `\nO Desconto apresentado deverá ser considerado em pagamentos via pix ou transferência, até a data da retirada das peças.\n`
     text += `\nPara reserva das peças é necessário que seja feito um sinal. Caso haja cancelamento ou desistência, o valor do sinal, fica como credito para uma próxima locação.\n`
     return text;
