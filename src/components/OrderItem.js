@@ -8,7 +8,13 @@ const OrderItem = ({ item, deleteItem, changeItem }) => {
 
     return (
         <div className="card mb-3">
-            <div className="card-header text-white bg-secondary">
+            <div
+                className={
+                    item.stock !== undefined && item.stock < 1
+                        ? 'card-header text-white bg-danger'
+                        : 'card-header text-white bg-secondary'
+                }
+            >
                 {item.item.name} #{item.item.idn}
                 <button
                     type="button"

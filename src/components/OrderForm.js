@@ -12,6 +12,8 @@ import OrderItem from '../components/OrderItem';
 import MoneyInput from '../components/MoneyInput';
 import Receipt from '../components/Receipt';
 
+import getStock from '../services/stock';
+
 const normalizeToCurrency = number => {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(number)
 }
@@ -19,6 +21,7 @@ const normalizeToCurrency = number => {
 const OrderForm = ({values, setValues, onSubmit, loading}) => {
     const [errors, setErrors] = useState();
     const [loadingReceipt, setLoadingReceipt] = useState(false);
+    const [loadingStock, setLoadingStock] = useState(false);
 
     const receiptGenerate = async () => {
         setLoadingReceipt(true);
@@ -48,6 +51,25 @@ const OrderForm = ({values, setValues, onSubmit, loading}) => {
         onSubmit({ ...values, total: total(values) });
     };
 
+    const handleGetStock = async (event) => {
+        event.preventDefault();
+        setLoadingStock(true);
+        const items = values.order_items.map(item => {
+            return {
+                id: item.item.id,
+                quantity: item.quantity
+            }
+        });
+        const stock = await getStock(items, values.id, values.date_pickup, values.date_back);
+        const order_items = values.order_items.map((item, index) => {
+            return {
+                ...item,
+                stock: stock[index].stock
+            }
+        });
+        setValues({ ...values, order_items });
+        setLoadingStock(false);
+    }
     const addItem = ({ id, idn, name, value, value_repo, picture }) => {
         // TODO: verificar os dados antes!
         const item = { item: {id, idn, name, picture}, value, value_repo, quantity: 1 }
@@ -178,15 +200,24 @@ const OrderForm = ({values, setValues, onSubmit, loading}) => {
                 <div className="card-body p-1">
                     {values.order_items && values.order_items.length > 0 ? (
                         <>
-                        {values.order_items.map(
-                            (item, index) => (
-                                <OrderItem key={item.item.id+index} item={item} deleteItem={deleteItem} changeItem={changeItem} />
-                            )
-                        )}
+                            {values.order_items.map(
+                                (item, index) => (
+                                    <OrderItem key={item.item.id+index} item={item} deleteItem={deleteItem} changeItem={changeItem} />
+                                )
+                            )}
+                            {values.id && (
+                                <button type="button" onClick={handleGetStock} disabled={loadingStock} className="btn btn-success btn-block">
+                                    {loadingStock
+                                        ? (<div className="spinner-border spinner-border-sm" role="status"></div>)
+                                        : (<span><FontAwesomeIcon icon={faReceipt} size="lg" /></span>)}
+                            &nbsp;Checar estoque
+                                </button>
+                            )}
                         </>
                     ) : (
                         <span className="text-center">Nenhum produto adicionado</span>
                     )}
+                    
                 </div>
                 <div className="card-footer text-muted">
                     <div className="form-group">
