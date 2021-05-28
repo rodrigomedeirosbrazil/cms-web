@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { useLazyQuery, useMutation } from '@apollo/react-hooks';
-import gql from 'graphql-tag';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faUserEdit, faTrash, faPlusCircle } from '@fortawesome/free-solid-svg-icons'
+import { faUserEdit, faTrash, faPlusCircle, faSearch } from '@fortawesome/free-solid-svg-icons'
 import { LinkContainer as Link } from 'react-router-bootstrap'
 import qs from 'query-string';
+
+import graphql from '../services/graphql'
 
 import Navbar from '../components/Navbar';
 import Modal from '../components/Modal';
 import Pagination from '../components/Pagination';
 
-const CUSTOMERS = gql`
+const CUSTOMERS = `
     query ($limit: Int!, $offset: Int!) {
         customers_aggregate (where: {active: {_eq: true}}) {
             aggregate {
@@ -23,7 +23,20 @@ const CUSTOMERS = gql`
     }
 `;
 
-const DELCUSTOMER = gql`
+const CUSTOMERS_BY_NAME = `
+    query ($search: String!, $limit: Int!, $offset: Int!) {
+        customers_aggregate (where: {name: {_ilike: $search}, active: {_eq: true}}) {
+            aggregate {
+                totalCount: count
+            }
+        }
+        customers (where: {name: {_ilike: $search}, active: {_eq: true}}, order_by: {name: asc, id: asc}, limit: $limit, offset: $offset) {
+            id, name, email 
+        }
+    }
+`;
+
+const DELCUSTOMER = `
     mutation ($id: uuid!) {
         update_customers(where: {id: {_eq: $id}}, _set: {active: false}) {
             affected_rows
@@ -31,20 +44,45 @@ const DELCUSTOMER = gql`
     }
 `;
 
+let CUSTOMERS_GQL = CUSTOMERS;
+
+
 export default function Customers ({ history }) {
     const [getPage, setPage] = useState(1);
     const limit = 15;
-    const [getCustomers, { data, loading }] = useLazyQuery(CUSTOMERS, {
-        fetchPolicy: "network-only"
-    });
     const [showModal, setShowModal] = useState(false);
     const [value, setValue] = useState(false);
-    
+    const [search, setSearch] = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [data, setData] = useState({});
+
+    const handleFetch = async () => {
+        let params = {};
+
+        if (search === '') {
+            CUSTOMERS_GQL = CUSTOMERS;
+            params = { limit: limit, offset: (getPage - 1) * limit }
+        }
+        else {
+            CUSTOMERS_GQL = CUSTOMERS_BY_NAME;
+            params = { search: `%${search}%`, limit: limit, offset: (getPage - 1) * limit }
+        }
+
+        setLoading(true);
+
+        const _data = await graphql(CUSTOMERS_GQL, params);
+        setData(_data);
+
+        setLoading(false);
+    }
+
     useEffect(
         () => {
-            getCustomers({ variables: { limit: limit, offset: (getPage - 1) * limit } });
+            handleFetch();
         },
-        [getPage, getCustomers]
+        // eslint-disable-next-line
+        [getPage, searchQuery]
     )
 
     useEffect(
@@ -55,27 +93,28 @@ export default function Customers ({ history }) {
             } else {
                 setPage(1);
             }
+            handleFetch();
         },
+        // eslint-disable-next-line
         [history]
     )
 
-    const [delCustomer] =
-        useMutation(
-            DELCUSTOMER,
-            {
-                onCompleted: () => {
-                    history.go(0);
-                }
-            }
-        );
-
-    const deleteCustomer = () => {
-        delCustomer({ variables: { id: value } });
+    const deleteCustomer = async () => {
+        await graphql(DELCUSTOMER, { id: value });
+        handleFetch();
     }
 
     const showModalDelete = (id) => {
         setValue(id);
         setShowModal(true);
+    }
+
+    const handleSearch = (event) => {
+        setPage(1);
+        const parsedQuery = qs.parse(history.location.search);
+        const newQueryString = qs.stringify({ ...parsedQuery, search: '' });
+        history.push(`${history.location.pathname}?${newQueryString}`);
+        setSearchQuery(search);
     }
 
     return (
@@ -90,6 +129,29 @@ export default function Customers ({ history }) {
                         <div className="spinner-border" role="status"></div>
                     ) : (
                     <>
+                        <div className="row">
+                            <div className="col-md-8 offset-md-2">
+                                <div className="input-group mb-3">
+                                    <input
+                                        type="text"
+                                        className='form-control'
+                                        placeholder="Digite a busca"
+                                        name="search"
+                                        value={search}
+                                        onChange={event => {
+                                            setSearch(event.target.value);
+                                        }}
+                                        onKeyPress={(e) => { e.key === 'Enter' && e.preventDefault() }}
+                                    />
+                                    <div className="input-group-append">
+                                        <button onClick={handleSearch} disabled={loading} type="button" className="btn btn-primary">
+                                            {loading ? (<div className="spinner-border spinner-border-sm" role="status"></div>)
+                                                : (<span><FontAwesomeIcon icon={faSearch} size="lg" /></span>)}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         {data && data.customers_aggregate && data.customers_aggregate.aggregate && data.customers_aggregate.aggregate.totalCount > 0 && (
                             <Pagination totalCount={data.customers_aggregate.aggregate.totalCount} page={getPage} changePage={setPage} limit={limit} history={history} />
                         )}
