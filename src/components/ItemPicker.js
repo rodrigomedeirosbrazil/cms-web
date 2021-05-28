@@ -9,7 +9,7 @@ import getStock from '../services/stock'
 
 const ITEMS = `
     query ($name: String!, $limit: Int!, $offset: Int!) {
-        items (where: {name: {_ilike: $name}, active: {_eq: true}}, order_by: {name: asc}, limit: $limit, offset: $offset) { 
+        items (where: {name: {_ilike: $name}, active: {_eq: true}}, order_by: {name: asc, id: asc}, limit: $limit, offset: $offset) { 
             id, idn, name, value, value_repo, quantity, picture
         }
     }

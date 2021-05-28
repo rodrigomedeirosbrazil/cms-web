@@ -17,7 +17,7 @@ const CUSTOMERS = gql`
                 totalCount: count
             }
         }
-        customers (where: {active: {_eq: true}}, order_by: {name: asc}, limit: $limit, offset: $offset) { 
+        customers (where: {active: {_eq: true}}, order_by: {name: asc, id: asc}, limit: $limit, offset: $offset) { 
             id, name, email 
         }
     }

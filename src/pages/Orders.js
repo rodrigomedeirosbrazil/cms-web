@@ -20,7 +20,7 @@ const ORDERS = `
                 totalCount: count
             }
         }
-        orders (where: {active: {_eq: true}}, order_by: {date_pickup: desc}, limit: $limit, offset: $offset) { 
+        orders (where: {active: {_eq: true}}, order_by: {date_pickup: desc, id: asc}, limit: $limit, offset: $offset) { 
             id, description, total, date_pickup, date_back
             customer {
                 name
@@ -36,7 +36,7 @@ const ORDERS_BY_DESCRIPTION = `
                 totalCount: count
             }
         }
-        orders (where: {description: {_ilike: $search}, active: {_eq: true}}, order_by: {date_pickup: desc}, limit: $limit, offset: $offset) {
+        orders (where: {description: {_ilike: $search}, active: {_eq: true}}, order_by: {date_pickup: desc, id: asc}, limit: $limit, offset: $offset) {
             id, description, total, date_pickup, date_back
             customer {
                 name
@@ -52,7 +52,7 @@ const ORDERS_BY_CUSTOMER = `
                 totalCount: count
             }
         }
-        orders (where: {customer: {name: {_ilike: $search}}, active: {_eq: true}}, order_by: {date_pickup: desc}, limit: $limit, offset: $offset) {
+        orders (where: {customer: {name: {_ilike: $search}}, active: {_eq: true}}, order_by: {date_pickup: desc, id: asc}, limit: $limit, offset: $offset) {
             id, description, total, date_pickup, date_back
             customer {
                 name

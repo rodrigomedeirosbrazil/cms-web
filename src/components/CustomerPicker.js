@@ -7,7 +7,7 @@ import { ListGroup } from 'react-bootstrap';
 
 const CUSTOMERS = gql`
     query ($name: String!) {
-        customers (where: {name: {_ilike: $name} , active: {_eq: true}}, order_by: {name: asc}, limit: 10) { 
+        customers (where: {name: {_ilike: $name} , active: {_eq: true}}, order_by: {name: asc, id: asc}, limit: 10) { 
             id, name 
         }
     }

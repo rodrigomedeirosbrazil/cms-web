@@ -35,7 +35,7 @@ const ORDERS = gql`
                         _eq: $item_id
                     }
                 }
-            }, order_by: {date_pickup: desc}, limit: $limit, offset: $offset) { 
+            }, order_by: {date_pickup: desc, id: asc}, limit: $limit, offset: $offset) { 
             id, description, total, date_pickup, date_back
             customer {
                 id, name
