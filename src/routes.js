@@ -1,4 +1,4 @@
-import React, { lazy } from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Switch, Route, Redirect } from 'react-router-dom';
 
 import { getAuth } from './services/auth';
@@ -42,24 +42,26 @@ const PrivateRoute = ({ component: Component, ...rest }) => (
 export default function Routes () {
     return (
         <BrowserRouter>
-            <Switch>
-                <Route name="home" path="/" exact component={Home}/>
-                <Route name="login" path="/login" exact component={Login}/>
-                <Route name="signup" path="/signup" exact component={Signup} />
-                <Route name="recovery_password" path="/recovery_password" exact component={RecoveryPassword} />
-                <PrivateRoute name="profile" path="/profile" exact component={Profile} />
-                <PrivateRoute name="change_password" path="/change_password" exact component={ChangePassword} />
-                <PrivateRoute name="main" path="/main" exact component={Main}/>
-                <PrivateRoute name="customers" path="/customers" component={Customers}/>
-                <PrivateRoute name="customerNew" path="/customer/new" exact component={CustomerNew} />
-                <PrivateRoute name="customer" path="/customer/:id" component={Customer}/>
-                <PrivateRoute name="items" path="/items" component={Items} />
-                <PrivateRoute name="itemNew" path="/item/new" exact component={ItemNew} />
-                <PrivateRoute name="item" path="/item/:id" component={Item} />
-                <PrivateRoute name="orders" path="/orders" component={Orders} />
-                <PrivateRoute name="orderNew" path="/order/new" exact component={OrderNew} />
-                <PrivateRoute name="order" path="/order/:id" component={Order} />
-            </Switch>
+            <Suspense fallback={<div>Loading...</div>}>
+                <Switch>
+                    <Route name="home" path="/" exact component={Home}/>
+                    <Route name="login" path="/login" exact component={Login}/>
+                    <Route name="signup" path="/signup" exact component={Signup} />
+                    <Route name="recovery_password" path="/recovery_password" exact component={RecoveryPassword} />
+                    <PrivateRoute name="profile" path="/profile" exact component={Profile} />
+                    <PrivateRoute name="change_password" path="/change_password" exact component={ChangePassword} />
+                    <PrivateRoute name="main" path="/main" exact component={Main}/>
+                    <PrivateRoute name="customers" path="/customers" component={Customers}/>
+                    <PrivateRoute name="customerNew" path="/customer/new" exact component={CustomerNew} />
+                    <PrivateRoute name="customer" path="/customer/:id" component={Customer}/>
+                    <PrivateRoute name="items" path="/items" component={Items} />
+                    <PrivateRoute name="itemNew" path="/item/new" exact component={ItemNew} />
+                    <PrivateRoute name="item" path="/item/:id" component={Item} />
+                    <PrivateRoute name="orders" path="/orders" component={Orders} />
+                    <PrivateRoute name="orderNew" path="/order/new" exact component={OrderNew} />
+                    <PrivateRoute name="order" path="/order/:id" component={Order} />
+                </Switch>
+            </Suspense>
         </BrowserRouter>
     )
 }
