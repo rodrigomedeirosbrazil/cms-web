@@ -1,24 +1,24 @@
-import React from 'react';
+import React, { lazy } from 'react';
 import { BrowserRouter, Switch, Route, Redirect } from 'react-router-dom';
 
 import { getAuth } from './services/auth';
 
-import Home from './pages/Home';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
-import Profile from './pages/Profile';
-import RecoveryPassword from './pages/RecoveryPassword';
-import ChangePassword from './pages/ChangePassword';
-import Main from './pages/Main';
-import Customers from './pages/Customers';
-import CustomerNew from './pages/CustomerNew';
-import Customer from './pages/Customer';
-import Items from './pages/Items';
-import ItemNew from './pages/ItemNew';
-import Item from './pages/Item';
-import Orders from './pages/Orders';
-import OrderNew from './pages/OrderNew';
-import Order from './pages/Order';
+const Home = lazy(() => import('./pages/Home'));
+const Login = lazy(() => import('./pages/Login'));
+const Signup = lazy(() => import('./pages/Signup'));
+const Profile = lazy(() => import('./pages/Profile'));
+const RecoveryPassword = lazy(() => import('./pages/RecoveryPassword'));
+const ChangePassword = lazy(() => import('./pages/ChangePassword'));
+const Main = lazy(() => import('./pages/Main'));
+const Customers = lazy(() => import('./pages/Customers'));
+const CustomerNew = lazy(() => import('./pages/CustomerNew'));
+const Customer = lazy(() => import('./pages/Customer'));
+const Items = lazy(() => import('./pages/Items'));
+const ItemNew = lazy(() => import('./pages/ItemNew'));
+const Item = lazy(() => import('./pages/Item'));
+const Orders = lazy(() => import('./pages/Orders'));
+const OrderNew = lazy(() => import('./pages/OrderNew'));
+const Order = lazy(() => import('./pages/Order'));
 
 const isAuthenticated = () => {
     const auth = getAuth();
