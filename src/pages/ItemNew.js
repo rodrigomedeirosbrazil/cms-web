@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { useMutation, useLazyQuery } from '@apollo/react-hooks';
-import gql from 'graphql-tag';
+import graphql from '../services/graphql'
 import uuid from 'uuid/v4';
 
 import Navbar from '../components/Navbar';
@@ -9,7 +8,7 @@ import Modal from '../components/Modal';
 
 import { getAuth } from '../services/auth';
 
-const ITEM = gql`
+const ITEM = `
     query ($user_id: uuid!) {
         items (order_by: {idn: desc}, limit: 1, where: { user_id: { _eq: $user_id }, active: {_eq: true} }) { 
             idn
@@ -17,7 +16,7 @@ const ITEM = gql`
     }
 `;
 
-const NEWITEM = gql`
+const NEWITEM = `
     mutation (
         $id: uuid!, 
         $idn: Int!, 
@@ -54,33 +53,32 @@ const NEWITEM = gql`
 export default function ItemNew({ history }) {
     const [values, setValues] = useState({quantity: 1});
     const [showModal, setShowModal] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [loadingItem, setLoadingItem] = useState(false);
+    const [error, setError] = useState();
 
-    const [newItem, { loading, error }] = 
-        useMutation(
-            NEWITEM, 
-            { 
-                onCompleted: () => {
-                    setShowModal(true);
-                    setValues({});
-                }
-            }
-        );
+    const onSubmit = async data => {
+        setLoading(true);
 
-    const [getLastIdn,  {loadingItem}] =
-        useLazyQuery(
-            ITEM,
-            {
-                onCompleted: (data) => {
-                    const idn = data.items.length > 0 ? data.items[0].idn+1 : 1;
-                    const _data = { ...values, id: uuid(), idn };
-                    newItem({ variables: { ..._data } });
-                }
-            }
-        );
-
-    const onSubmit = (data) => {
+        setLoadingItem(true);
         const auth = getAuth();
-        getLastIdn({ variables: { user_id: `${auth.user.id}` } });
+        const lastIds = await graphql(ITEM, { user_id: `${auth.user.id}` });
+        setLoadingItem(false);
+
+        const idn = lastIds.items.length > 0 ? lastIds.items[0].idn + 1 : 1;
+        const _data = { ...values, id: uuid(), idn };
+
+        try {
+            await graphql(NEWITEM, { ..._data });
+            setShowModal(true);
+            setValues({});
+        } catch(e) {
+            setError({
+                message: e.message
+            })
+        }
+
+        setLoading(false);
     }
 
     return (

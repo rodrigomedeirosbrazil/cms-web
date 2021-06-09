@@ -19,6 +19,10 @@ const graphql = (query, variables = {}) => {
             Authorization: 'Bearer ' + (auth ? auth.token : '')
         } 
     }).then(resp => {
+        if (resp.data.errors) {
+            throw resp.data.errors[0];
+        }
+
         return resp.data.data;
     });
 };
