@@ -1,5 +1,6 @@
 import React from 'react';
 import NumberFormat from 'react-number-format';
+import noPhotoDataUri from '../assets/noPhotoDataUri'
 
 const ItemPickerItem = ({ item, index, onChange, removeItem  }) => {
 
@@ -18,6 +19,7 @@ const ItemPickerItem = ({ item, index, onChange, removeItem  }) => {
                 <div className="row">
                     <div className="col">
                         <img alt={item.id} src={item.picture} className="img-thumbnail" width="100" 
+                            onError={(e) => { e.target.onerror = null; e.target.src = noPhotoDataUri }}
                             onClick={
                                 (event) => {
                                     event.preventDefault();

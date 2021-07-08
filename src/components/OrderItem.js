@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
 import MoneyInput from '../components/MoneyInput';
+import noPhotoDataUri from '../assets/noPhotoDataUri'
 
 const OrderItem = ({ item, deleteItem, changeItem }) => {
 
@@ -32,7 +33,13 @@ const OrderItem = ({ item, deleteItem, changeItem }) => {
             <div className="card-body">
                 <div className="row">
                     <div className="col">
-                        <img alt={item.item.id} src={item.item.picture} className="img-thumbnail" width="100" />
+                        <img 
+                            alt={item.item.id} 
+                            src={item.item.picture} 
+                            className="img-thumbnail" 
+                            width="100" 
+                            onError={(e) => { e.target.onerror = null; e.target.src = noPhotoDataUri }}
+                            />
                     </div>
                     <div className="col-8">
                         <div className="row">

@@ -10,6 +10,7 @@ import qs from 'query-string';
 import Navbar from '../components/Navbar';
 import Modal from '../components/Modal';
 import Pagination from '../components/Pagination';
+import noPhotoDataUri from '../assets/noPhotoDataUri'
 
 const ITEMS = gql`
     query ($limit: Int!, $offset: Int!) {
@@ -182,11 +183,15 @@ export default function Items ({ history }) {
                                 {data && data.items && data.items.length > 0 ? data.items.map( 
                                     item => (
                                         <tr key={item.id}>
-                                            {item.picture ? (
                                             <td>
-                                                <img alt="" src={item.picture} className="img-thumbnail" width="100" />
+                                                <img 
+                                                    alt="" 
+                                                    src={item.picture} 
+                                                    className="img-thumbnail" 
+                                                    width="100" 
+                                                    onError={(e) => { e.target.onerror = null; e.target.src = noPhotoDataUri }}
+                                                />
                                             </td>
-                                            ): (<td>SEM FOTO</td>)}
                                             <td>{item.name} #{item.idn}</td>
                                             <td>{ item.description }</td>
                                             <td>{item.quantity}</td>
