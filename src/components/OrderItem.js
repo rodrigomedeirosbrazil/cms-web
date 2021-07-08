@@ -16,7 +16,9 @@ const OrderItem = ({ item, deleteItem, changeItem }) => {
                         : 'card-header text-white bg-secondary'
                 }
             >
-                {item.item.name} #{item.item.idn}
+                <a href={'/item/' + item.item.id} target="_blank" rel="noreferrer" style={{color: "white"}}>
+                    {item.item.name} #{item.item.idn}
+                </a>
                 <button
                     type="button"
                     onClick={

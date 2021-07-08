@@ -13,7 +13,9 @@ const ItemPickerItem = ({ item, index, onChange, removeItem  }) => {
                     : 'card-header text-white bg-secondary' 
                 }
             >
-                {item.name} #{item.idn}
+                <a href={'/item/' + item.id} target="_blank" rel="noreferrer" style={{ color: "white" }}>
+                    {item.name} #{item.idn}
+                </a>
             </div>
             <div className="card-body p-1">
                 <div className="row">
