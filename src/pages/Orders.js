@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faEdit, faTrash, faPlusCircle, faSearch } from '@fortawesome/free-solid-svg-icons'
-import { faCircle, faCheckCircle } from '@fortawesome/free-regular-svg-icons'
+import { faEdit, faTrash, faPlusCircle } from '@fortawesome/free-solid-svg-icons'
 import NumberFormat from 'react-number-format';
 import Moment from 'react-moment';
 import { LinkContainer as Link } from 'react-router-bootstrap'
@@ -12,6 +11,7 @@ import graphql from '../services/graphql'
 import Navbar from '../components/Navbar';
 import Modal from '../components/Modal';
 import Pagination from '../components/Pagination';
+import OrderSearch from '../components/OrderSearch';
 
 const ORDERS = `
     query ($limit: Int!, $offset: Int!) {
@@ -61,6 +61,22 @@ const ORDERS_BY_CUSTOMER = `
     }
 `;
 
+const ORDERS_BY_DATE_PICKUP = `
+    query ($start_date: date!, $end_date: date!, $limit: Int!, $offset: Int!) {
+        orders_aggregate (where: { date_pickup: {_gte: $start_date}, _and: {date_pickup: {_lte: $end_date}}, active: {_eq: true}}) {
+            aggregate {
+                totalCount: count
+            }
+        }
+        orders (where: { date_pickup: {_gte: $start_date}, _and: {date_pickup: {_lte: $end_date}}, active: {_eq: true}}, order_by: {date_pickup: desc, id: asc}, limit: $limit, offset: $offset) {
+            id, description, total, date_pickup, date_back
+            customer {
+                name
+            } 
+        }
+    }
+`;
+
 let ORDERS_GQL = ORDERS;
 
 const DELORDER = `
@@ -76,26 +92,43 @@ export default function Orders ({ history }) {
     const limit = 15;
     const [showModal, setShowModal] = useState(false);
     const [value, setValue] = useState(false);
-    const [search, setSearch] = useState('');
-    const [searchQuery, setSearchQuery] = useState('');
-    const [searchType, setSearchType] = useState(0);
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState({});
+    
+    useEffect(
+        () => {
+            const parsedQuery = qs.parse(history.location.search);
+            setPage(parsedQuery.page ? parseInt(parsedQuery.page) : 1);
+            handleFetch(
+                parsedQuery.searchType ? parseInt(parsedQuery.searchType) : 0,
+                parsedQuery.searchTerm ? parsedQuery.searchTerm : '',
+                parsedQuery.startDate ? parsedQuery.startDate : '',
+                parsedQuery.endDate ? parsedQuery.endDate : '',
+                parsedQuery.page ? parseInt(parsedQuery.page) : 1
+            );
+        },
+        // eslint-disable-next-line
+        [history.location.search]
+    )
 
-    const handleFetch = async () => {
+    const handleFetch = async (searchType = 0, searchTerm = '', startDate = '', endDate = '', page = 1) => {
         let params = {};
 
-        if (search === '') {
+        if (searchTerm === '' && searchType !== 2) {
             ORDERS_GQL = ORDERS;
-            params = { limit: limit, offset: (getPage - 1) * limit }
+            params = { limit: limit, offset: (page - 1) * limit }
         }
         else if (searchType === 0) {
             ORDERS_GQL = ORDERS_BY_DESCRIPTION;
-            params = { search: `%${search}%`, limit: limit, offset: (getPage - 1) * limit }
+            params = { search: `%${searchTerm}%`, limit: limit, offset: (page - 1) * limit }
         }
         else if (searchType === 1) {
             ORDERS_GQL = ORDERS_BY_CUSTOMER;
-            params = { search: `%${search}%`, limit: limit, offset: (getPage - 1) * limit }
+            params = { search: `%${searchTerm}%`, limit: limit, offset: (page - 1) * limit }
+        }
+        else if (searchType === 2) {
+            ORDERS_GQL = ORDERS_BY_DATE_PICKUP;
+            params = { start_date: `${startDate}`, end_date: `${endDate}`, limit: limit, offset: (page - 1) * limit }
         }
 
         setLoading(true);
@@ -115,32 +148,24 @@ export default function Orders ({ history }) {
             const newData = { ..._data, orders }
             setData(newData);
         }
-
         setLoading(false);
+
     }
 
-    useEffect(
-        () => {
-            handleFetch();
-        },
-        // eslint-disable-next-line
-        [getPage, searchQuery]
-    )
+    const handleSearch = async (searchObj) => {
+        setPage(1);
+        
+        const parsedQuery = qs.parse(history.location.search);
+        const newQueryString = qs.stringify({
+            ...parsedQuery, 
+            searchType: searchObj.searchType,
+            searchTerm: searchObj.searchTerm,
+            startDate: searchObj.startDate,
+            endDate: searchObj.endDate,
+        });
 
-
-    useEffect(
-        () => {
-            const parsedQuery = qs.parse(history.location.search);
-            if (parsedQuery.page) {
-                setPage(parseInt(parsedQuery.page));
-            } else {
-                setPage(1);
-            }
-            handleFetch();
-        },
-        // eslint-disable-next-line
-        [history]
-    )
+        history.push(`${history.location.pathname}?${newQueryString}`);
+    }
 
     const deleteOrder =  async () => {
         await graphql(DELORDER, { id: value });
@@ -150,14 +175,6 @@ export default function Orders ({ history }) {
     const showModalDelete = (id) => {
         setValue(id);
         setShowModal(true);
-    }
-
-    const handleSearch = (event) => {
-        setPage(1);
-        const parsedQuery = qs.parse(history.location.search);
-        const newQueryString = qs.stringify({ ...parsedQuery, search: '' });
-        history.push(`${history.location.pathname}?${newQueryString}`);
-        setSearchQuery(search);
     }
 
     return (
@@ -172,37 +189,7 @@ export default function Orders ({ history }) {
                         <div className="spinner-border" role="status"></div>
                     ) : (
                     <>
-                        <div className="row">
-                            <div className="col-md-8 offset-md-2">
-                                <div className="input-group mb-3">
-                                    <input
-                                        type="text"
-                                        className='form-control'
-                                        placeholder="Digite a busca"
-                                        name="search"
-                                        value={search}
-                                        onChange={event => {
-                                            setSearch(event.target.value);
-                                        }}
-                                        onKeyPress={(e) => { e.key === 'Enter' && e.preventDefault() }}
-                                    />
-                                    <div className="input-group-append">
-                                        <button onClick={handleSearch} disabled={loading} type="button" className="btn btn-primary">
-                                            {loading ? (<div className="spinner-border spinner-border-sm" role="status"></div>)
-                                                : (<span><FontAwesomeIcon icon={faSearch} size="lg" /></span>)}
-                                        </button>
-                                    </div>
-                                </div>
-                                <div className="row mb-4">
-                                    <div className="col" onClick={() => setSearchType(0)}>
-                                        <span className="mr-2"><FontAwesomeIcon icon={searchType === 0 ? faCheckCircle : faCircle} size="lg" /></span>Por descrição
-                                    </div>
-                                    <div className="col" onClick={() => setSearchType(1)}>
-                                        <span className="mr-2"><FontAwesomeIcon icon={searchType === 1 ? faCheckCircle : faCircle} size="lg" /></span>Por cliente
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <OrderSearch handleSearch={handleSearch} loading={loading} history={history}/>
                         {data && data.orders_aggregate && data.orders_aggregate.aggregate && data.orders_aggregate.aggregate.totalCount > 0 && (
                             <Pagination totalCount={data.orders_aggregate.aggregate.totalCount} page={getPage} changePage={setPage} limit={limit} history={history} />
                         )}
