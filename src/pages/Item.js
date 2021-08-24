@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation } from '@apollo/react-hooks';
 import gql from 'graphql-tag';
 import { useParams } from "react-router";
+import Qrcode from "qrcode.react";
 
 import Navbar from '../components/Navbar';
 import ItemForm from '../components/ItemForm';
@@ -10,6 +11,7 @@ import ItemOrders from '../components/ItemOrders';
 const ITEM = gql`
     query ($id: uuid!) {
         items (where: { id: { _eq: $id } }) { 
+            id,
             name, 
             description, 
             value, 
@@ -103,6 +105,12 @@ export default function Items ({ history }) {
             <div className="row" style={{ marginTop: 50 }}>
                 <div className="col-md-6 offset-md-3">
                     <h2>Produto: #{values.idn}</h2>
+
+                    { values.id && 
+                        <div className="text-center">
+                            <Qrcode value={values.id} />
+                        </div>
+                    }
                     { updated && (
                     <div className="alert alert-success" role="alert">
                         Dados foram gravados com sucesso!

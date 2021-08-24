@@ -1,15 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
+import useSound from 'use-sound';
 
 import ItemPickerItem from './ItemPickerItem'
 import graphql from '../services/graphql'
 import getStock from '../services/stock'
-
+import QrcodeReader from '../components/QrcodeReader'
+import beepData from '../assets/beepData';
 
 const ITEMS = `
     query ($name: String!, $limit: Int!, $offset: Int!) {
         items (where: {name: {_ilike: $name}, active: {_eq: true}}, order_by: {name: asc, id: asc}, limit: $limit, offset: $offset) { 
+            id, idn, name, value, value_repo, quantity, picture
+        }
+    }
+`;
+
+const ITEM = `
+    query ($id: uuid) {
+        items (where: {id: {_eq: $id}, active: {_eq: true}}, order_by: {name: asc, id: asc}, limit: 1) { 
             id, idn, name, value, value_repo, quantity, picture
         }
     }
@@ -24,6 +34,8 @@ const ItemPicker = ({ onChange, error, values }) => {
     const [searchLoading, setSearchLoading] = useState(false);
     const [loadMore, setLoadMore] = useState(false);
     
+    const [beep] = useSound(beepData);
+
     useEffect(() => {
         handleSearch();
     // eslint-disable-next-line
@@ -69,8 +81,40 @@ const ItemPicker = ({ onChange, error, values }) => {
         }))
     }
 
+    const handleSearchByQrcode = async (data) => {
+        if (searchLoading) return;
+        
+        beep();
+
+        setSearchLoading(true);
+
+        try {
+            const queryResult = await graphql(
+                ITEM,
+                { id: data }
+            );
+
+            setLoadMore(false);
+
+            if (queryResult.items.length === 0) {
+                setLoadMore(false);
+            } else if (values.date_pickup && values.date_back) {
+                setItems([...await getStock(queryResult.items, values.id, values.date_pickup, values.date_back)]);
+            } else {
+                setItems([...queryResult.items]);
+            }
+
+        } catch (error) {
+            console.log('erro', error);
+            setItems([]);
+        }
+
+        setSearchLoading(false);
+    }
+
     return (
         <>
+            <QrcodeReader handleScan={handleSearchByQrcode}/>
             <div className="input-group mb-3">
                 <input
                     type="text"
