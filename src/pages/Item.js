@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation } from '@apollo/react-hooks';
 import gql from 'graphql-tag';
 import { useParams } from "react-router";
-import Qrcode from "qrcode.react";
+import QRCode from "qrcode";
 
 import Navbar from '../components/Navbar';
 import ItemForm from '../components/ItemForm';
@@ -74,10 +74,13 @@ export default function Items ({ history }) {
             ITEM, 
             { 
                 variables: { id }, 
-                onCompleted: () => {
+                onCompleted: async () => {
                     if (data && data.items.length === 1) {
                         delete data.items[0].__typename;
-                        setValues({...data.items[0]});
+                        setValues({
+                            ...data.items[0],
+                            qrcode: await QRCode.toDataURL(data.items[0].id)
+                        });
                     }
                 }
             }
@@ -106,9 +109,9 @@ export default function Items ({ history }) {
                 <div className="col-md-6 offset-md-3">
                     <h2>Produto: #{values.idn}</h2>
 
-                    { values.id && 
+                    { values.qrcode &&
                         <div className="text-center">
-                            <Qrcode value={values.id} />
+                            <img alt="qrcode" src={values.qrcode} />
                         </div>
                     }
                     { updated && (
