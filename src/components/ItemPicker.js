@@ -33,6 +33,7 @@ const ItemPicker = ({ onChange, error, values }) => {
     const [items, setItems] = useState([]);
     const [searchLoading, setSearchLoading] = useState(false);
     const [loadMore, setLoadMore] = useState(false);
+    const [lastCodeReaded, setLastCodeReaded] = useState(null);
     
     const [beep] = useSound(beepData);
 
@@ -83,7 +84,11 @@ const ItemPicker = ({ onChange, error, values }) => {
 
     const handleSearchByQrcode = async (data) => {
         if (searchLoading) return;
-        
+
+        if (data === lastCodeReaded) return;
+
+        setLastCodeReaded(data);
+
         beep();
 
         setSearchLoading(true);
