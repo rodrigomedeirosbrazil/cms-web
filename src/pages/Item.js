@@ -89,7 +89,7 @@ export default function Items ({ history }) {
         useMutation(
             UPDATEITEM, 
             { 
-                variables: { ...values, id },
+                variables: { ...values, qrcode: undefined, id },
                 onCompleted: () => {
                     setUpdated(true);
                 }
