@@ -11,6 +11,7 @@ import Navbar from '../components/Navbar';
 import Modal from '../components/Modal';
 import Pagination from '../components/Pagination';
 import noPhotoDataUri from '../assets/noPhotoDataUri'
+import QrcodeReport from '../components/QrcodeReport.js'
 
 const ITEMS = gql`
     query ($limit: Int!, $offset: Int!) {
@@ -164,9 +165,17 @@ export default function Items ({ history }) {
                                 </div>
                             </div>
                         </div>
-                        {data && data.items_aggregate && data.items_aggregate.aggregate && data.items_aggregate.aggregate.totalCount > 0 && (
-                            <Pagination totalCount={data.items_aggregate.aggregate.totalCount} page={getPage} changePage={setPage} limit={limit} history={history} />
-                        )}
+                        <div>
+                            <div className="float-left">
+                                {data && data.items_aggregate && data.items_aggregate.aggregate && data.items_aggregate.aggregate.totalCount > 0 && (
+                                    <Pagination totalCount={data.items_aggregate.aggregate.totalCount} page={getPage} changePage={setPage} limit={limit} history={history} />
+                                )}
+                            </div>
+
+                            <div className="float-right">
+                                <QrcodeReport search={search} />
+                            </div>
+                        </div>
                         <div className="table-responsive">
                             <table className="table table-striped">
                                 <thead className="thead-dark">
