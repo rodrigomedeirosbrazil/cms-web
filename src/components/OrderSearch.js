@@ -55,7 +55,7 @@ const OrderSearch = (props) => {
                     </div>
                 ) : (
                     <div className="row align-items-center">
-                        <div className="col-5">
+                            <div className="col-12 col-lg-5">
                             <div className="form-group">
                                 <label>Data Início</label>
                                 <input
@@ -69,7 +69,7 @@ const OrderSearch = (props) => {
                                 />
                             </div>
                         </div>
-                        <div className="col-5">
+                        <div className="col-12 col-lg-5">
                             <div className="form-group">
                                 <label>Data Final</label>
                                 <input
@@ -83,7 +83,7 @@ const OrderSearch = (props) => {
                                 />
                             </div>
                         </div>
-                        <div className="col-2">
+                        <div className="col-12 col-lg-2">
                             <button onClick={handleSearch} disabled={props.loading} type="button" className="btn btn-primary">
                                 {props.loading ? (<div className="spinner-border spinner-border-sm" role="status"></div>)
                                     : (<span><FontAwesomeIcon icon={faSearch} size="lg" /></span>)}
