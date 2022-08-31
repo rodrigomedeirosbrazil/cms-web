@@ -5,13 +5,21 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import MoneyInput from '../components/MoneyInput';
 import noPhotoDataUri from '../assets/noPhotoDataUri'
 
+const hasStock = (stock, quantity) => {
+    if (stock === undefined) {
+        return false;
+    }
+    
+    return stock < quantity;
+}
+
 const OrderItem = ({ item, deleteItem, changeItem }) => {
 
     return (
         <div className="card mb-3">
             <div
                 className={
-                    item.stock !== undefined && item.stock < 1
+                    hasStock(item.stock, parseInt(item.quantity))
                         ? 'card-header text-white bg-danger'
                         : 'card-header text-white bg-secondary'
                 }
