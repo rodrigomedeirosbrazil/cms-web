@@ -11,7 +11,9 @@ import api from '../services/api';
 import { getAuth } from '../services/auth';
 
 const normalizeCurrencyDotToComma = value => {
-    return normalizeCurrency(dotToComma(value));
+    return value === null || value === undefined 
+        ? '0,00'
+        : normalizeCurrency(dotToComma(value));
 }
 
 const Receipt = async _data => {
