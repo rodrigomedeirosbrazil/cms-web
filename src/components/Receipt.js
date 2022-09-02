@@ -31,8 +31,14 @@ const Receipt = async _data => {
     const completeDate = moment(_data.date_pickup).format('D [de] MMMM [de] YYYY')
     const datePickupFormatted = moment(_data.date_pickup).format('DD/MM/YYYY')
     const dateBackFormatted = moment(_data.date_back).format('DD/MM/YYYY')
-    const totalFormatted = normalizeCurrencyDotToComma(_data.total)
     const normalizedDoc = normalizeDoc(doc)
+    const totalValueToPayFormatted = normalizeCurrencyDotToComma(_data.total - Number(_data.deposit))
+    const totalValueFormatted = normalizeCurrencyDotToComma(_data.total + (
+        (Number(_data.discount) && Number(_data.discount) > 0) 
+        ? Number(_data.discount) 
+        : 0)
+    )
+
     const { vfs } = vfsFonts.pdfMake;
     pdfMake.vfs = vfs;
 
@@ -47,7 +53,7 @@ const Receipt = async _data => {
 
         3. DO INADIMPLEMENTO, DO DESCUMPRIMENTO E DA MULTA
 
-        Cláusula 3ª: A presente locação terá o valor de R$ ${totalFormatted} pelo período contratado, referente aos bens efetivamente locados, devendo ser integralmente pago, mediante cartão de débito/crédito, dinheiro ou depósito/transferência na CONTA N 22.833-1, Agência 8158 - Banco Itaú  na data da reserva das peças, no caso da(o) cliente optar pelo depósito/transferência, a apresentação do comprovante é indispensável para a retirada das peças locadas. PARÁGRAFO PRIMEIRO. A(O) LOCATÁRIA(O) PODERÁ FAZER RESERVA ANTECIPADA DOS PRODUTOS MEDIANTE O PAGAMENTO ANTECIPADO DO VALOR TOTAL DO ALUGUEL, E ASSINATURA DO PRESENTE INSTRUMENTO.
+        Cláusula 3ª: A presente locação terá o valor de R$ ${totalValueToPayFormatted} pelo período contratado, referente aos bens efetivamente locados, devendo ser integralmente pago, mediante cartão de débito/crédito, dinheiro ou depósito/transferência na CONTA N 22.833-1, Agência 8158 - Banco Itaú  na data da reserva das peças, no caso da(o) cliente optar pelo depósito/transferência, a apresentação do comprovante é indispensável para a retirada das peças locadas. PARÁGRAFO PRIMEIRO. A(O) LOCATÁRIA(O) PODERÁ FAZER RESERVA ANTECIPADA DOS PRODUTOS MEDIANTE O PAGAMENTO ANTECIPADO DO VALOR TOTAL DO ALUGUEL, E ASSINATURA DO PRESENTE INSTRUMENTO.
 
         Parágrafo segundo. O valor referente à reserva/locação não será devolvido sob qualquer hipótese, mesmo em caso de cancelamento do contrato, podendo ser revertido para crédito em futura locação.
 
@@ -231,8 +237,19 @@ const Receipt = async _data => {
             ]
         );
     }
+    
 
-    if (_data.discount && _data.discount > 0 )
+    table.body.push(
+        [
+            '',
+            '',
+            { text: 'Valor total:', bold: true },
+            { text: totalValueFormatted, bold: true, alignment: 'right' },
+            ''
+        ]
+    );
+
+    if (_data.discount && _data.discount > 0 ) {
         table.body.push(
             [
                 '', 
@@ -243,12 +260,34 @@ const Receipt = async _data => {
             ]
         );
 
+        table.body.push(
+            [
+                '',
+                '',
+                { text: 'Com desconto:', bold: true },
+                { text: normalizeCurrencyDotToComma(_data.total), bold: true, alignment: 'right' },
+                ''
+            ]
+        );
+    }
+    
+    if (_data.deposit && _data.deposit > 0)
+        table.body.push(
+            [
+                '',
+                '',
+                { text: 'Sinal:', bold: true },
+                { text: normalizeCurrencyDotToComma(_data.deposit), bold: true, alignment: 'right' },
+                ''
+            ]
+        );
+
     table.body.push(
         [
             '',
             '',
-            { text: 'Total:', bold: true },
-            { text: totalFormatted, bold: true, alignment: 'right' },
+            { text: 'A pagar:', bold: true },
+            { text: totalValueToPayFormatted, bold: true, alignment: 'right' },
             ''
         ]
     );
