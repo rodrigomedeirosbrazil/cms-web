@@ -1,39 +1,11 @@
 {
-  "name": "cms-medeirostec-web",
+  "name": "cms-web",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@apollo/react-hooks": "^3.1.5",
-    "@fortawesome/fontawesome-svg-core": "^1.2.28",
-    "@fortawesome/free-regular-svg-icons": "^5.15.3",
-    "@fortawesome/free-solid-svg-icons": "^5.13.0",
-    "@fortawesome/react-fontawesome": "^0.1.9",
-    "apollo-boost": "^0.4.7",
-    "axios": "^0.21.1",
-    "bootstrap": "^4.4.1",
-    "cep-promise": "^4.1.0",
-    "copy-to-clipboard": "^3.3.1",
-    "get-orientation": "^1.1.2",
-    "graphql": "^14.6.0",
-    "moment": "^2.25.3",
-    "pdfmake": "^0.1.65",
-    "qrcode": "^1.4.4",
-    "query-string": "^6.12.1",
-    "react": "^16.13.1",
-    "react-apollo": "^3.1.5",
-    "react-bootstrap": "^1.0.1",
-    "react-dom": "^16.13.1",
-    "react-easy-crop": "^3.3.3",
-    "react-moment": "^0.9.7",
-    "react-number-format": "^4.4.1",
-    "react-qr-reader": "^2.2.1",
-    "react-router-bootstrap": "^0.25.0",
-    "react-router-dom": "^5.0.1",
-    "react-scripts": "^4.0.3",
-    "react-text-mask": "^5.4.3",
-    "use-debounce": "^3.4.2",
-    "use-sound": "^4.0.1",
-    "uuid": "^3.4.0"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "5.0.1"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -42,7 +14,10 @@
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
-    "extends": "react-app"
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
   },
   "browserslist": {
     "production": [
