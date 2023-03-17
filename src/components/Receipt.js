@@ -53,7 +53,7 @@ const Receipt = async _data => {
 
         3. DO INADIMPLEMENTO, DO DESCUMPRIMENTO E DA MULTA
 
-        Cláusula 3ª: A presente locação terá o valor de R$ ${totalValueToPayFormatted} pelo período contratado, referente aos bens efetivamente locados, devendo ser integralmente pago, mediante cartão de débito/crédito, dinheiro ou depósito/transferência na CONTA N 22.833-1, Agência 8158 - Banco Itaú  na data da reserva das peças, no caso da(o) cliente optar pelo depósito/transferência, a apresentação do comprovante é indispensável para a retirada das peças locadas. PARÁGRAFO PRIMEIRO. A(O) LOCATÁRIA(O) PODERÁ FAZER RESERVA ANTECIPADA DOS PRODUTOS MEDIANTE O PAGAMENTO ANTECIPADO DO VALOR TOTAL DO ALUGUEL, E ASSINATURA DO PRESENTE INSTRUMENTO.
+        Cláusula 3ª: A presente locação terá o valor de R$ ${totalValueToPayFormatted} pelo período contratado, referente aos bens efetivamente locados, devendo ser integralmente pago, mediante cartão de débito/crédito, dinheiro ou depósito/transferência na CONTA 14369558-8, Agência 0001 - Banco NU Pagamentos (260) - PIX: CNPJ  ${normalizedDoc} - na data da reserva das peças, no caso da(o) cliente optar pelo depósito/transferência, a apresentação do comprovante é indispensável para a retirada das peças locadas. PARÁGRAFO PRIMEIRO. A(O) LOCATÁRIA(O) PODERÁ FAZER RESERVA ANTECIPADA DOS PRODUTOS MEDIANTE O PAGAMENTO ANTECIPADO DO VALOR TOTAL DO ALUGUEL, E ASSINATURA DO PRESENTE INSTRUMENTO.
 
         Parágrafo segundo. O valor referente à reserva/locação não será devolvido sob qualquer hipótese, mesmo em caso de cancelamento do contrato, podendo ser revertido para crédito em futura locação.
 
