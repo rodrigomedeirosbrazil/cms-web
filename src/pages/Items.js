@@ -20,8 +20,8 @@ const ITEMS = gql`
                 totalCount: count
             }
         }
-        items (where: {active: {_eq: true}}, order_by: {idn: asc}, limit: $limit, offset: $offset) { 
-            id, idn, name, description, quantity, value, picture 
+        items (where: {active: {_eq: true}}, order_by: {idn: asc}, limit: $limit, offset: $offset) {
+            id, idn, name, description, quantity, value, picture
         }
     }
 `;
@@ -33,8 +33,8 @@ const ITEMS_BY_NAME = gql`
                 totalCount: count
             }
         }
-        items (where: {name: {_ilike: $search}, active: {_eq: true}}, order_by: {idn: asc}, limit: $limit, offset: $offset) { 
-            id, idn, name, description, quantity, value, picture 
+        items (where: {name: {_ilike: $search}, active: {_eq: true}}, order_by: {idn: asc}, limit: $limit, offset: $offset) {
+            id, idn, name, description, quantity, value, picture
         }
     }
 `;
@@ -58,7 +58,8 @@ export default function Items ({ history }) {
     const [showModal, setShowModal] = useState(false);
     const [value, setValue] = useState(false);
     const [search, setSearch] = useState('');
-    
+    const [selectedItems, setSelectItems] = useState([]);
+
     useEffect(
         () => {
             if (search !== '') {
@@ -69,7 +70,7 @@ export default function Items ({ history }) {
                 ITEMS_GQL = ITEMS;
                 getItems({ variables: { limit: limit, offset: (getPage - 1) * limit } });
             }
-            
+
         },
         // eslint-disable-next-line
         [getPage, getItems]
@@ -130,6 +131,14 @@ export default function Items ({ history }) {
         }
     }
 
+    const handleSelectItem = (itemId) => {
+        if (selectedItems.includes(itemId)) {
+            setSelectItems(selectedItems.filter(item => item !== itemId));
+        } else {
+            setSelectItems([...selectedItems, itemId]);
+        }
+    };
+
     return (
         <>
         <Navbar></Navbar>
@@ -180,6 +189,7 @@ export default function Items ({ history }) {
                             <table className="table table-striped">
                                 <thead className="thead-dark">
                                     <tr>
+                                        <th></th>
                                         <th>Foto</th>
                                         <th>Nome</th>
                                         <th>Descrição</th>
@@ -189,15 +199,22 @@ export default function Items ({ history }) {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                {data && data.items && data.items.length > 0 ? data.items.map( 
+                                {data && data.items && data.items.length > 0 ? data.items.map(
                                     item => (
                                         <tr key={item.id}>
                                             <td>
-                                                <img 
-                                                    alt="" 
-                                                    src={item.picture} 
-                                                    className="img-thumbnail" 
-                                                    width="100" 
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedItems.includes(item.id)}
+                                                    onChange={ () => handleSelectItem(item.id)}
+                                                />
+                                            </td>
+                                            <td>
+                                                <img
+                                                    alt=""
+                                                    src={item.picture}
+                                                    className="img-thumbnail"
+                                                    width="100"
                                                     onError={(e) => { e.target.onerror = null; e.target.src = noPhotoDataUri }}
                                                 />
                                             </td>
