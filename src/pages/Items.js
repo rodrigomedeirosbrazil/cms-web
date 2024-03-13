@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useLazyQuery, useMutation } from '@apollo/react-hooks';
-import gql from 'graphql-tag';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit, faTrash, faPlusCircle, faSearch } from '@fortawesome/free-solid-svg-icons'
 import { LinkContainer as Link } from 'react-router-bootstrap'
-import NumberFormat from 'react-number-format';
 import qs from 'query-string';
+import NumberFormat from 'react-number-format';
+
+import graphql from '../services/graphql'
 
 import Navbar from '../components/Navbar';
 import Modal from '../components/Modal';
@@ -13,7 +13,7 @@ import Pagination from '../components/Pagination';
 import noPhotoDataUri from '../assets/noPhotoDataUri'
 import QrcodeReport from '../components/QrcodeReport.js'
 
-const ITEMS = gql`
+const ITEMS = `
     query ($limit: Int!, $offset: Int!) {
         items_aggregate (where: {active: {_eq: true}}) {
             aggregate {
@@ -26,7 +26,7 @@ const ITEMS = gql`
     }
 `;
 
-const ITEMS_BY_NAME = gql`
+const ITEMS_BY_NAME = `
     query ($search: String!, $limit: Int!, $offset: Int!) {
         items_aggregate (where: {name: {_ilike: $search}, active: {_eq: true}}) {
             aggregate {
@@ -41,7 +41,7 @@ const ITEMS_BY_NAME = gql`
 
 let ITEMS_GQL = ITEMS;
 
-const DELITEM = gql`
+const DELITEM = `
     mutation ($id: uuid!) {
         update_items(where: {id: {_eq: $id}}, _set: {active: false}) {
             affected_rows
@@ -52,28 +52,40 @@ const DELITEM = gql`
 export default function Items ({ history }) {
     const [getPage, setPage] = useState(1);
     const limit = 15;
-    const [getItems, { data, loading }] = useLazyQuery(ITEMS_GQL, {
-        fetchPolicy: "network-only"
-    });
     const [showModal, setShowModal] = useState(false);
     const [value, setValue] = useState(false);
     const [search, setSearch] = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [data, setData] = useState({});
     const [selectedItems, setSelectItems] = useState([]);
+
+    const handleFetch = async () => {
+        let params = {};
+
+        if (search === '') {
+            ITEMS_GQL = ITEMS;
+            params = { limit: limit, offset: (getPage - 1) * limit }
+        }
+        else {
+            ITEMS_GQL = ITEMS_BY_NAME;
+            params = { search: `%${search}%`, limit: limit, offset: (getPage - 1) * limit }
+        }
+
+        setLoading(true);
+
+        const _data = await graphql(ITEMS_GQL, params);
+        setData(_data);
+
+        setLoading(false);
+    }
 
     useEffect(
         () => {
-            if (search !== '') {
-                ITEMS_GQL = ITEMS_BY_NAME;
-                getItems({ variables: { search: `%${search}%`, limit: limit, offset: (getPage - 1) * limit } });
-            }
-            else {
-                ITEMS_GQL = ITEMS;
-                getItems({ variables: { limit: limit, offset: (getPage - 1) * limit } });
-            }
-
+            handleFetch();
         },
         // eslint-disable-next-line
-        [getPage, getItems]
+        [getPage, searchQuery]
     )
 
     useEffect(
@@ -84,28 +96,18 @@ export default function Items ({ history }) {
             } else {
                 setPage(1);
             }
-
-            if (parsedQuery.search) {
-                setSearch(parsedQuery.search);
-            } else {
-                setSearch('');
-            }
+            handleFetch();
         },
+        // eslint-disable-next-line
         [history]
     )
 
-    const [delItem] =
-        useMutation(
-            DELITEM,
-            {
-                onCompleted: () => {
-                    history.go(0);
-                }
-            }
-        );
-
-    const deleteItem = () => {
-        delItem({ variables: { id: value } });
+    const deleteItem = async () => {
+        await graphql(DELITEM, { id: value });
+        setData({
+            items_aggregate: data.items_aggregate,
+            items: data.items.filter(item => item.id !== value)
+        });
     }
 
     const showModalDelete = (id) => {
@@ -115,20 +117,10 @@ export default function Items ({ history }) {
 
     const handleSearch = (event) => {
         setPage(1);
-        if (search !== '') {
-            ITEMS_GQL = ITEMS_BY_NAME;
-            getItems({ variables: { search: `%${search.replace(/\s/g, '%')}%`, limit: limit, offset: (getPage - 1) * limit }});
-            const parsedQuery = qs.parse(history.location.search);
-            const newQueryString = qs.stringify({ ...parsedQuery, search, page: 1 });
-            history.push(`${history.location.pathname}?${newQueryString}`);
-        }
-        else {
-            ITEMS_GQL = ITEMS;
-            getItems({ variables: { limit: limit, offset: (getPage - 1) * limit } });
-            const parsedQuery = qs.parse(history.location.search);
-            const newQueryString = qs.stringify({ ...parsedQuery, search: '' });
-            history.push(`${history.location.pathname}?${newQueryString}`);
-        }
+        const parsedQuery = qs.parse(history.location.search);
+        const newQueryString = qs.stringify({ ...parsedQuery, search: '' });
+        history.push(`${history.location.pathname}?${newQueryString}`);
+        setSearchQuery(search);
     }
 
     const handleSelectItem = (itemId) => {
