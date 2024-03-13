@@ -53,6 +53,7 @@ export default function Items ({ history }) {
     const [getPage, setPage] = useState(1);
     const limit = 15;
     const [showModal, setShowModal] = useState(false);
+    const [showDeleteSelectModal, setShowDeleteSelectModal] = useState(false);
     const [value, setValue] = useState(false);
     const [search, setSearch] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
@@ -110,6 +111,18 @@ export default function Items ({ history }) {
         });
     }
 
+    const deleteItems = async () => {
+        selectedItems.forEach(async (id) => {
+            await graphql(DELITEM, { id: id });
+        });
+        setData({
+            items_aggregate: data.items_aggregate,
+            items: data.items.filter(item => !selectedItems.includes(item.id))
+        });
+
+        setSelectItems([]);
+    }
+
     const showModalDelete = (id) => {
         setValue(id);
         setShowModal(true);
@@ -135,6 +148,7 @@ export default function Items ({ history }) {
         <>
         <Navbar></Navbar>
         <Modal show={showModal} setShow={setShowModal} header="Confirmar" body="Deseja apagar o produto?" onOk={deleteItem} value={value} showCancel={true}></Modal>
+        <Modal show={showDeleteSelectModal} setShow={setShowDeleteSelectModal} header="Confirmar" body="Deseja apagar os produtos selecionados?" onOk={deleteItems} showCancel={true}></Modal>
         <div className="container-fluid">
             <div className="row" style={{ marginTop: 50 }}>
                 <div className="col-md-10 offset-md-1">
@@ -181,7 +195,9 @@ export default function Items ({ history }) {
                             <table className="table table-striped">
                                 <thead className="thead-dark">
                                     <tr>
-                                        <th></th>
+                                        <th>
+                                            { selectedItems.length > 0 && <button onClick={ () => setShowDeleteSelectModal(true)} className="btn btn-danger ml-1"><span><FontAwesomeIcon icon={faTrash} size="sm" /></span></button> }
+                                        </th>
                                         <th>Foto</th>
                                         <th>Nome</th>
                                         <th>Descrição</th>
