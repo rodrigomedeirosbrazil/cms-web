@@ -79,6 +79,7 @@ export default function Items ({ history }) {
         setData(_data);
 
         setLoading(false);
+        setSelectItems([]);
     }
 
     useEffect(
