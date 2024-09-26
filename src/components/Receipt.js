@@ -1,7 +1,7 @@
 import pdfMake from 'pdfmake/build/pdfmake';
 import vfsFonts from 'pdfmake/build/vfs_fonts';
 import moment from 'moment';
-import 'moment/locale/pt-br'; 
+import 'moment/locale/pt-br';
 
 import dotToComma from '../utils/dotToComma';
 import normalizeCurrency from '../utils/normalizeCurrency';
@@ -11,7 +11,7 @@ import api from '../services/api';
 import { getAuth } from '../services/auth';
 
 const normalizeCurrencyDotToComma = value => {
-    return value === null || value === undefined 
+    return value === null || value === undefined
         ? '0,00'
         : normalizeCurrency(dotToComma(value));
 }
@@ -34,8 +34,8 @@ const Receipt = async _data => {
     const normalizedDoc = normalizeDoc(doc)
     const totalValueToPayFormatted = normalizeCurrencyDotToComma(_data.total - Number(_data.deposit))
     const totalValueFormatted = normalizeCurrencyDotToComma(_data.total + (
-        (Number(_data.discount) && Number(_data.discount) > 0) 
-        ? Number(_data.discount) 
+        (Number(_data.discount) && Number(_data.discount) > 0)
+        ? Number(_data.discount)
         : 0)
     )
 
@@ -44,7 +44,7 @@ const Receipt = async _data => {
 
     const contractText = [{ text: '\nCONTRATO DE LOCAÇÃO', fontSize: 18, alignment: 'center' },
         { text: `
-        
+
         As partes identificadas acima têm, entre si, justo e acertado, o presente Contrato de Locação, que se regerá pelas cláusulas seguintes e pelas condições de preço, forma e termos de pagamento descritos no presente.
 
         2. OBRIGAÇÕES DO LOCADOR
@@ -74,7 +74,7 @@ const Receipt = async _data => {
         9. A (o) LOCATÁRIA (o) autoriza, especificamente, a repostagem e/ou publicação de fotos em redes sociais, que contenham peças do acervo da LOCADORA, oriundas da presente locação.
 
         9. DO FORO Para dirimir quaisquer controvérsias oriundas do presente contrato, as partes elegem o foro da comarca de Santos/SP.
-        
+
         `, fontSize: 8 },
         { text: `${city}, ${completeDate}`, fontSize: 8 }, '\n\n',
         {
@@ -183,6 +183,7 @@ const Receipt = async _data => {
             '\n',
             {
                 columns: [
+                    { text: [{ text: 'Tema: ', bold: true }, _data.description] },
                     { text: [{ text: 'Data de retirada: ', bold: true }, datePickupFormatted] },
                     { text: [{ text: 'Data de devolução: ', bold: true }, dateBackFormatted] },
                 ]
@@ -217,32 +218,34 @@ const Receipt = async _data => {
     table.body = [];
     table.body.push(
         [
-            { text: '', bold: true }, 
-            { text: 'Qnt.', bold: true }, 
-            { text: 'Preço unit. (R$)', bold: true }, 
-            { text: 'Total (R$)', bold: true }, 
+            { text: '', bold: true },
+            { text: 'Qnt.', bold: true },
+            { text: 'Preço unit. (R$)', bold: true },
+            { text: 'Total (R$)', bold: true },
             { text: 'Reposição (R$)', bold: true }
         ]
     );
 
+    let itemsNumber = 0;
     for (let i = 0; i < _data.order_items.length; i++) {
         let item = _data.order_items[i];
+        itemsNumber += item.quantity;
         table.body.push(
             [
-                { text: (i + 1) + ' - ' + item.item.name + ' - ' + item.item.idn }, 
-                { text: item.quantity, alignment: 'right' }, 
-                { text: normalizeCurrencyDotToComma(item.value), alignment: 'right' }, 
-                { text: normalizeCurrencyDotToComma(item.value * item.quantity), alignment: 'right' }, 
+                { text: (i + 1) + ' - ' + item.item.name + ' - ' + item.item.idn },
+                { text: item.quantity, alignment: 'right' },
+                { text: normalizeCurrencyDotToComma(item.value), alignment: 'right' },
+                { text: normalizeCurrencyDotToComma(item.value * item.quantity), alignment: 'right' },
                 { text: normalizeCurrencyDotToComma(item.value_repo), alignment: 'right' }
             ]
         );
     }
-    
+
 
     table.body.push(
         [
             '',
-            '',
+            { text: itemsNumber, alignment: 'right' },
             { text: 'Valor total:', bold: true },
             { text: totalValueFormatted, bold: true, alignment: 'right' },
             ''
@@ -252,10 +255,10 @@ const Receipt = async _data => {
     if (_data.discount && _data.discount > 0 ) {
         table.body.push(
             [
-                '', 
-                '', 
-                { text: 'Desconto:', bold: true }, 
-                { text: normalizeCurrencyDotToComma(_data.discount), bold: true, alignment: 'right' }, 
+                '',
+                '',
+                { text: 'Desconto:', bold: true },
+                { text: normalizeCurrencyDotToComma(_data.discount), bold: true, alignment: 'right' },
                 ''
             ]
         );
@@ -270,7 +273,7 @@ const Receipt = async _data => {
             ]
         );
     }
-    
+
     if (_data.deposit && _data.deposit > 0)
         table.body.push(
             [
